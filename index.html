@@ -3,8 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>테스트 페이지 (Test Page)</title>
+  <title>JoonVector [한준] | Security Architect & Principal Consultant</title>
+  <meta name="description" content="사이버·물리융합보안 전문가 및 IT 프로젝트 매니저, 삼성SDS Principal Consultant JoonVector [한준]">
   <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: rgba(18, 26, 43, 0.75);
+      --border: rgba(255, 255, 255, 0.08);
+      --accent: #38bdf8;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
     * {
       box-sizing: border-box;
       margin: 0;
@@ -12,231 +22,179 @@
     }
 
     body {
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text-main);
       min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1.25rem;
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(56, 189, 248, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(99, 102, 241, 0.06) 0%, transparent 40%);
+      background-attachment: fixed;
+    }
+
+    .container {
+      max-width: 520px;
+      width: 100%;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.75rem 2.25rem;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Brand Tag */
+    .brand-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+    .brand-tag::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      background-color: var(--accent);
+      border-radius: 50%;
+      display: inline-block;
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    /* Name & Korean Name */
+    h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #ffffff;
+      line-height: 1.1;
+      margin-bottom: 0.4rem;
+      display: flex;
+      align-items: baseline;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .ko-name {
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: #94a3b8;
+      letter-spacing: 0;
+    }
+
+    .role-title {
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 1.75rem;
+    }
+    .role-title span {
+      color: var(--text-main);
+      font-weight: 600;
+    }
+
+    /* Bio Statement (Non-sentence Style) */
+    .intro {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: #cbd5e1;
+      margin-bottom: 2rem;
+      word-break: keep-all;
+    }
+
+    /* Social & Contact */
+    .section-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.65rem;
+    }
+
+    .link-item {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #311042 100%);
-      color: #f8fafc;
-      overflow-x: hidden;
-      position: relative;
-    }
-
-    /* Background Ambient Lights */
-    .ambient-light {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(100px);
-      opacity: 0.45;
-      pointer-events: none;
-      z-index: 0;
-      animation: floatPulse 8s ease-in-out infinite alternate;
-    }
-
-    .light-1 {
-      width: 450px;
-      height: 450px;
-      background: radial-gradient(circle, #38bdf8 0%, #6366f1 100%);
-      top: 10%;
-      left: 15%;
-    }
-
-    .light-2 {
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, #ec4899 0%, #8b5cf6 100%);
-      bottom: 10%;
-      right: 15%;
-      animation-delay: -4s;
-    }
-
-    @keyframes floatPulse {
-      0% {
-        transform: translate(0, 0) scale(1);
-      }
-      100% {
-        transform: translate(30px, -20px) scale(1.08);
-      }
-    }
-
-    /* Glassmorphism Card Container */
-    .card {
-      position: relative;
-      z-index: 10;
-      width: 90%;
-      max-width: 560px;
-      background: rgba(255, 255, 255, 0.06);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 24px;
-      padding: 48px 36px;
-      text-align: center;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), 
-                  0 0 40px rgba(99, 102, 241, 0.2);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5), 
-                  0 0 50px rgba(236, 72, 153, 0.25);
-    }
-
-    /* Status Badge */
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 16px;
-      border-radius: 9999px;
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid rgba(16, 185, 129, 0.4);
-      color: #34d399;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      margin-bottom: 24px;
-    }
-
-    .badge-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #10b981;
-      box-shadow: 0 0 10px #10b981;
-      animation: blink 2s infinite;
-    }
-
-    @keyframes blink {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.85); }
-    }
-
-    /* Main Headline */
-    h1 {
-      font-size: 34px;
-      font-weight: 800;
-      line-height: 1.35;
-      margin-bottom: 16px;
-      background: linear-gradient(135deg, #ffffff 10%, #67e8f9 50%, #f472b6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      letter-spacing: -0.5px;
-      text-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
-    }
-
-    p {
-      font-size: 16px;
-      color: #94a3b8;
-      line-height: 1.6;
-      margin-bottom: 32px;
-    }
-
-    /* Quick Game Links */
-    .links-title {
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: #cbd5e1;
-      font-weight: 700;
-      margin-bottom: 14px;
-    }
-
-    .btn-group {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .btn {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 14px 22px;
-      border-radius: 14px;
+      padding: 0.75rem 0.5rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text-main);
       text-decoration: none;
-      font-weight: 700;
-      font-size: 15px;
-      transition: all 0.25s ease;
-      border: 1px solid transparent;
+      font-size: 0.85rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .link-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.25);
+      color: #ffffff;
+      transform: translateY(-1px);
     }
 
-    .btn-game-1 {
-      background: linear-gradient(135deg, rgba(0, 243, 255, 0.15) 0%, rgba(168, 85, 247, 0.15) 100%);
-      color: #38bdf8;
-      border-color: rgba(56, 189, 248, 0.3);
-    }
-
-    .btn-game-1:hover {
-      background: linear-gradient(135deg, rgba(0, 243, 255, 0.3) 0%, rgba(168, 85, 247, 0.3) 100%);
-      border-color: #38bdf8;
-      transform: translateX(4px);
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
-    }
-
-    .btn-game-2 {
-      background: linear-gradient(135deg, rgba(236, 72, 153, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%);
-      color: #f472b6;
-      border-color: rgba(244, 114, 182, 0.3);
-    }
-
-    .btn-game-2:hover {
-      background: linear-gradient(135deg, rgba(236, 72, 153, 0.3) 0%, rgba(245, 158, 11, 0.3) 100%);
-      border-color: #f472b6;
-      transform: translateX(4px);
-      box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
-    }
-
-    .btn-arrow {
-      font-size: 18px;
-    }
-
-    /* Footer */
-    .footer {
-      margin-top: 28px;
-      font-size: 13px;
-      color: #64748b;
+    @media (max-width: 480px) {
+      .container {
+        padding: 2rem 1.5rem;
+      }
+      h1 {
+        font-size: 1.85rem;
+      }
+      .ko-name {
+        font-size: 1.1rem;
+      }
+      .links-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- Ambient background glow -->
-  <div class="ambient-light light-1"></div>
-  <div class="ambient-light light-2"></div>
-
-  <!-- Main Card -->
-  <div class="card">
-    <div class="badge">
-      <span class="badge-dot"></span>
-      <span>WEB TEST SERVER ACTIVE</span>
+  <main class="container">
+    <!-- Brand Tag -->
+    <div class="brand-tag">Direction & Architecture</div>
+    
+    <!-- Title: Name + Korean Name -->
+    <h1>JoonVector <span class="ko-name">[HanJoon]</span></h1>
+    <div class="role-title">
+      <span>Samsung SDS</span> · Principal Consultant
     </div>
 
-    <h1>이곳은 테스트 페이지 입니다.</h1>
-    <p>
-      웹 호스팅 및 네트워크 테스트가 정상적으로 작동하고 있습니다.<br>
-      아래에서 제작된 프로젝트들을 바로 실행해보실 수 있습니다.
+    <!-- Intro Statement (Non-sentence) -->
+    <p class="intro">
+      사이버보안 및 물리 융합보안 전문가로 IT 프로젝트 매니저(PM) 수행. AX/RX 관련 인공지능 및 로봇공학과 H/W에 관심이 많은 이. <br><br>
+      JoonVector: 방향과 힘을 규정하는 벡터(Vector)를 기반으로 명확한 목적과 기준을 따르는 자 라는 의미 
     </p>
 
-    <div class="links-title">PRODUCED WEB GAMES</div>
-    <div class="btn-group">
-      <a href="game_2d.html" class="btn btn-game-1">
-        <span>🎮 GraviBounce: Quantum Shift (중력반전 게임)</span>
-        <span class="btn-arrow">&rarr;</span>
+    <!-- Connect -->
+    <div class="section-label">Connect</div>
+    <div class="links-grid">
+      <a href="mailto:nawnsl@google.com" class="link-item">
+        ✉️ Email
       </a>
-      <a href="game_shoot.html" class="btn btn-game-2">
-        <span>🚀 Cosmic Striker (2D 횡스크롤 우주 슈팅)</span>
-        <span class="btn-arrow">&rarr;</span>
+      <a href="https://blog.naver.com/joonyel96" target="_blank" rel="noopener noreferrer" class="link-item">
+        📝 Blog
+      </a>
+      <a href="https://github.com/joonvector" target="_blank" rel="noopener noreferrer" class="link-item">
+        🐙 GitHub
       </a>
     </div>
-
-    <div class="footer">
-      &copy; 2026 Web Test Environment &bull; Ready for deployment
-    </div>
-  </div>
+  </main>
 
 </body>
 </html>
-
