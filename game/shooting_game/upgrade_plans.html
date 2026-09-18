@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cosmic Striker - 상용화 업그레이드 마스터 플랜</title>
+  <!-- Mermaid.js for rendering diagrams -->
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    mermaid.initialize({ 
+      startOnLoad: true, 
+      theme: 'dark',
+      themeVariables: {
+        fontSize: '17px',
+        fontFamily: 'Pretendard, -apple-system, sans-serif'
+      },
+      flowchart: { 
+        useMaxWidth: false, 
+        htmlLabels: true, 
+        curve: 'basis' 
+      }
+    });
+  </script>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #131b2e;
+      --border: rgba(255, 255, 255, 0.1);
+      --accent: #38bdf8;
+      --accent-glow: rgba(56, 189, 248, 0.25);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Pretendard", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .wrapper {
+      max-width: 1060px;
+      width: 100%;
+    }
+
+    /* Header & Action bar */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .header-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+    }
+
+    .sub-title {
+      font-size: 1.05rem;
+      color: var(--text-muted);
+    }
+
+    .btn-print {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #0284c7, #2563eb);
+      color: #ffffff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+      transition: all 0.2s ease;
+    }
+
+    .btn-print:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+    }
+
+    /* Section Styling */
+    .section {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .section-title {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::before {
+      content: "";
+      width: 5px;
+      height: 22px;
+      background: var(--accent);
+      border-radius: 2px;
+      box-shadow: 0 0 10px var(--accent);
+    }
+
+    /* Table Styling */
+    .table-container {
+      overflow-x: auto;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.94rem;
+      background: rgba(11, 15, 25, 0.5);
+    }
+
+    th, td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    th {
+      background: rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+      font-weight: 700;
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .col-num {
+      font-weight: 800;
+      color: var(--accent);
+      text-align: center;
+      width: 50px;
+    }
+
+    .col-area {
+      font-weight: 700;
+      color: #f8fafc;
+      white-space: nowrap;
+    }
+
+    .col-item {
+      font-weight: 600;
+      color: #e2e8f0;
+      white-space: nowrap;
+    }
+
+    .col-desc {
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    .col-effect {
+      color: #cbd5e1;
+      font-size: 0.9rem;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .p-1 { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .p-2 { background: rgba(249, 115, 22, 0.2); color: #fb923c; border: 1px solid rgba(249, 115, 22, 0.4); }
+    .p-3 { background: rgba(234, 179, 8, 0.2); color: #facc15; border: 1px solid rgba(234, 179, 8, 0.4); }
+    .p-4 { background: rgba(56, 189, 248, 0.2); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.4); }
+    .p-5 { background: rgba(99, 102, 241, 0.2); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.4); }
+    .p-6 { background: rgba(168, 85, 247, 0.2); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.4); }
+    .p-7 { background: rgba(236, 72, 153, 0.2); color: #f472b6; border: 1px solid rgba(236, 72, 153, 0.4); }
+
+    /* =======================================================
+       Visual Staircase Pipeline (Large, Readable & Bold)
+       ======================================================= */
+    .pipeline-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .step-card {
+      background: rgba(11, 15, 25, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 1.75rem 2rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+    }
+
+    .step-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+    }
+
+    .step-1 { border-color: rgba(239, 68, 68, 0.4); }
+    .step-1::before { background: #ef4444; box-shadow: 0 0 12px #ef4444; }
+
+    .step-2 { border-color: rgba(56, 189, 248, 0.4); }
+    .step-2::before { background: #38bdf8; box-shadow: 0 0 12px #38bdf8; }
+
+    .step-3 { border-color: rgba(168, 85, 247, 0.4); }
+    .step-3::before { background: #a855f7; box-shadow: 0 0 12px #a855f7; }
+
+    .step-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 1.25rem;
+      flex-wrap: wrap;
+    }
+
+    .step-num {
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      padding: 4px 12px;
+      border-radius: 6px;
+    }
+
+    .step-1 .step-num { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+    .step-2 .step-num { background: rgba(56, 189, 248, 0.2); color: #38bdf8; }
+    .step-3 .step-num { background: rgba(168, 85, 247, 0.2); color: #c084fc; }
+
+    .step-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #ffffff;
+    }
+
+    .step-tag {
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+      margin-left: auto;
+    }
+
+    .step-1 .step-tag { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .step-2 .step-tag { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+    .step-3 .step-tag { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+
+    .step-items {
+      display: flex;
+      flex-direction: column;
+      gap: 0.85rem;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      padding: 1.1rem 1.25rem;
+      border-radius: 10px;
+    }
+
+    .step-item .badge {
+      font-size: 0.85rem;
+      padding: 5px 10px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .item-content strong {
+      display: block;
+      font-size: 1.05rem;
+      color: #f1f5f9;
+      margin-bottom: 4px;
+    }
+
+    .item-content p {
+      font-size: 0.92rem;
+      color: #94a3b8;
+      line-height: 1.55;
+    }
+
+    .flow-arrow {
+      text-align: center;
+      padding: 0.25rem 0;
+      color: var(--accent);
+      font-size: 1.15rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .flow-arrow::before, .flow-arrow::after {
+      content: "";
+      height: 1px;
+      flex: 1;
+      max-width: 180px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    /* Diagram Container (Mermaid) */
+    .diagram-box {
+      background: rgba(11, 15, 25, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 2.5rem 1.5rem;
+      overflow-x: auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 1rem;
+    }
+
+    .mermaid {
+      font-size: 17px !important;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+      min-width: 700px;
+    }
+
+    .mermaid svg {
+      max-width: 100% !important;
+      height: auto !important;
+    }
+
+    /* Explanation Cards */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+
+    .info-card {
+      background: rgba(11, 15, 25, 0.4);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.4rem;
+    }
+
+    .info-card h4 {
+      font-size: 1.05rem;
+      color: #ffffff;
+      margin-bottom: 0.6rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .info-card p {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    /* Print Optimization */
+    @media print {
+      body {
+        background: #ffffff;
+        color: #1e293b;
+        padding: 0;
+      }
+      .wrapper {
+        max-width: 100%;
+      }
+      .btn-print {
+        display: none;
+      }
+      .section {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        box-shadow: none;
+        page-break-inside: avoid;
+      }
+      table {
+        background: #ffffff;
+      }
+      th {
+        background: #f1f5f9;
+        color: #0f172a;
+      }
+      td {
+        color: #334155;
+      }
+      .col-num {
+        color: #0284c7;
+      }
+      .col-area, .col-item {
+        color: #0f172a;
+      }
+      .col-desc {
+        color: #475569;
+      }
+      .step-card {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+      }
+      .step-title, .item-content strong {
+        color: #0f172a;
+      }
+      .item-content p {
+        color: #475569;
+      }
+      .step-item {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+      }
+      .diagram-box {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+      }
+      .info-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+      }
+      .info-card h4 {
+        color: #0f172a;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrapper">
+
+    <!-- Header -->
+    <header class="header">
+      <div>
+        <div class="header-badge">Google Play Launch Roadmap</div>
+        <h1>Cosmic Striker 상용화 업그레이드 마스터 플랜</h1>
+        <div class="sub-title">2D 우주 횡스크롤 슈팅 게임의 모바일 상용 퀄리티 도약을 위한 종합 기획 문서</div>
+      </div>
+      <div>
+        <button class="btn-print" onclick="window.print()">
+          🖨️ PDF 저장 / 인쇄
+        </button>
+      </div>
+    </header>
+
+    <!-- Section 1: Roadmap Table -->
+    <section class="section">
+      <h2 class="section-title">1. 6대 핵심 영역 업그레이드 로드맵 테이블</h2>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th class="col-num">No</th>
+              <th>핵심 영역</th>
+              <th>세부 개선 항목</th>
+              <th>상세 기획 내용</th>
+              <th>기대 효과</th>
+              <th style="text-align: center;">우선순위</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="col-num" rowspan="3">1</td>
+              <td class="col-area" rowspan="3">모바일 조작 & UI</td>
+              <td class="col-item">1:1 터치 드래그 & 핑거 오프셋</td>
+              <td class="col-desc">손가락 이동에 맞춰 기체가 즉각 추종하며, 시야 가림 방지 위해 손가락 전방 25px 배치</td>
+              <td class="col-effect">모바일 조작 피로도 제로화, 직관적 컨트롤</td>
+              <td style="text-align: center;"><span class="badge p-1">1순위 (Phase 1)</span></td>
+            </tr>
+            <tr>
+              <td class="col-item">모바일 전용 폭탄(Bomb) 버튼</td>
+              <td class="col-desc">위기 탈출용 궁극기 버튼 터치 UI 화면 우하단 배치 (게임당 2회)</td>
+              <td class="col-effect">모바일 환경의 긴급 회피 수단 제공</td>
+              <td style="text-align: center;"><span class="badge p-1">1순위 (Phase 1)</span></td>
+            </tr>
+            <tr>
+              <td class="col-item">햅틱 피드백</td>
+              <td class="col-desc">적 처치 및 피격 시 스마트폰 미세 진동(navigator.vibrate) 연동</td>
+              <td class="col-effect">손끝으로 전해지는 리얼한 물리 타격감</td>
+              <td style="text-align: center;"><span class="badge p-3">3순위 (Phase 1)</span></td>
+            </tr>
+
+            <tr>
+              <td class="col-num" rowspan="3">2</td>
+              <td class="col-area" rowspan="3">청각 & 타격감<br>(Juiciness)</td>
+              <td class="col-item">Web Audio 신스 SFX / BGM</td>
+              <td class="col-desc">외부 오디오 로딩 없는 순수 웹 오디오 신스음 (발사, 폭발, 사이렌, 승리 BGM)</td>
+              <td class="col-effect">게임 몰입도 및 완성도 300% 상승</td>
+              <td style="text-align: center;"><span class="badge p-2">2순위 (Phase 1)</span></td>
+            </tr>
+            <tr>
+              <td class="col-item">카메라 쉐이크 & 피격 플래시</td>
+              <td class="col-desc">적 타격 시 0.05초 화이트 점멸(Hit Flash), 대형 폭발 시 화면 진동</td>
+              <td class="col-effect">시각적 타격감 및 피격 인지 극대화</td>
+              <td style="text-align: center;"><span class="badge p-2">2순위 (Phase 1)</span></td>
+            </tr>
+            <tr>
+              <td class="col-item">히트스톱 (Hit Stop)</td>
+              <td class="col-desc">보스 처치나 강력한 피격 순간 0.1초 정지 후 대폭발 연출</td>
+              <td class="col-effect">아케이드 특유의 묵직한 쾌감 부여</td>
+              <td style="text-align: center;"><span class="badge p-2">2순위 (Phase 1)</span></td>
+            </tr>
+
+            <tr>
+              <td class="col-num" rowspan="2">3</td>
+              <td class="col-area" rowspan="2">아이템 & 파워업</td>
+              <td class="col-item">파워업 캡슐 드랍</td>
+              <td class="col-desc">듀얼 레이저 ➔ 트리플 확산탄 ➔ 유도 미사일 단계별 공격력 강화</td>
+              <td class="col-effect">성장감 제공 및 플레이 스타일 다변화</td>
+              <td style="text-align: center;"><span class="badge p-4">4순위 (Phase 2)</span></td>
+            </tr>
+            <tr>
+              <td class="col-item">서포트 아이템</td>
+              <td class="col-desc">화면 전체 탄환 소멸 폭탄, 자석(골드 자동 흡수), 방어막 리필</td>
+              <td class="col-effect">위기 돌파 및 전략적 플레이 유도</td>
+              <td style="text-align: center;"><span class="badge p-4">4순위 (Phase 2)</span></td>
+            </tr>
+
+            <tr>
+              <td class="col-num" rowspan="3">4</td>
+              <td class="col-area" rowspan="3">보스전 & 적 패턴</td>
+              <td class="col-item">10레벨 거대 모선(Mother Ship)</td>
+              <td class="col-desc">화면 절반 크기의 보스, 상단 체력바(HP Bar), 부위별 파괴 연출</td>
+              <td class="col-effect">엔딩 직전 최고의 긴장감과 성취감 조성</td>
+              <td style="text-align: center;"><span class="badge p-3">3순위 (Phase 1)</span></td>
+            </tr>
+            <tr>
+              <td class="col-item">다단계 보스 탄막 패턴</td>
+              <td class="col-desc">원형 탄막, 충전 레이저 빔 발사, 호위 드론 사출</td>
+              <td class="col-effect">단순 회피를 넘어 패턴 공략의 재미 제공</td>
+              <td style="text-align: center;"><span class="badge p-3">3순위 (Phase 1)</span></td>
+            </tr>
+            <tr>
+              <td class="col-item">엘리트/자폭 적 기체</td>
+              <td class="col-desc">플레이어를 향해 돌진하는 자폭선, 전방 쉴드 전함</td>
+              <td class="col-effect">단조로운 스폰 탈피 및 우선 타격 대상 부여</td>
+              <td style="text-align: center;"><span class="badge p-5">5순위 (Phase 2)</span></td>
+            </tr>
+
+            <tr>
+              <td class="col-num" rowspan="2">5</td>
+              <td class="col-area" rowspan="2">메타 시스템<br>(성장/저장)</td>
+              <td class="col-item">골드 재화 & 격납고(Hangar)</td>
+              <td class="col-desc">적 격추 시 드랍되는 골드로 기체 영구 업그레이드 (공격력, 이동속도, 쉴드시간)</td>
+              <td class="col-effect">반복 플레이 동기(Retention) 극대화</td>
+              <td style="text-align: center;"><span class="badge p-6">6순위 (Phase 3)</span></td>
+            </tr>
+            <tr>
+              <td class="col-item">로컬 세이브 & 최고기록 갱신</td>
+              <td class="col-desc">localStorage 기반 최고 점수, 보유 골드, 클리어 이력 자동 저장</td>
+              <td class="col-effect">플레이어 데이터 보존 및 성취 지표 제공</td>
+              <td style="text-align: center;"><span class="badge p-5">5순위 (Phase 2)</span></td>
+            </tr>
+
+            <tr>
+              <td class="col-num" rowspan="2">6</td>
+              <td class="col-area" rowspan="2">3D 개선<br>(Visual Evolution)</td>
+              <td class="col-item">의사 3D (Pseudo-3D) / 롤링 애니메이션</td>
+              <td class="col-desc">기체 상하 이동 시 좌우 롤링(Banking) 3D 틸트 및 다중 배경 원근감(Parallax Depth)</td>
+              <td class="col-effect">평면 2D를 벗어나 현대적인 공간감 부여</td>
+              <td style="text-align: center;"><span class="badge p-7">7순위 (Phase 4)</span></td>
+            </tr>
+            <tr>
+              <td class="col-item">WebGL / Three.js 3D 모델링</td>
+              <td class="col-desc">기체 및 거대 보스를 3D 폴리곤 모델로 교체하고 동적 조명 렌더링</td>
+              <td class="col-effect">구글 스토어 등록 시 압도적인 그래픽 어필</td>
+              <td style="text-align: center;"><span class="badge p-7">7순위 (Phase 4)</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 2: Visual Staircase Pipeline (Large & Bold) -->
+    <section class="section">
+      <h2 class="section-title">2. 단계별 계단식 개발 파이프라인 (Visual Roadmap)</h2>
+      
+      <!-- High-Readability Card Flow -->
+      <div class="pipeline-flow">
+        
+        <!-- STEP 1 -->
+        <div class="step-card step-1">
+          <div class="step-header">
+            <span class="step-num">STEP 1</span>
+            <span class="step-title">핵심 플레이 완성 (Phase 1)</span>
+            <span class="step-tag">🚀 즉시 착수 (최우선)</span>
+          </div>
+          <div class="step-items">
+            <div class="step-item">
+              <span class="badge p-1">1순위</span>
+              <div class="item-content">
+                <strong>테이블 1번 · 모바일 1:1 터치 조작 & 폭탄 버튼</strong>
+                <p>손가락 터치 드래그 추종 조작, 시야 가림 방지 핑거 오프셋 25px 적용, 화면 우하단 위기 탈출 폭탄 터치 UI</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="badge p-2">2순위</span>
+              <div class="item-content">
+                <strong>테이블 2번 · 신스 SFX 사운드 & 화면 흔들림 / 피격 플래시</strong>
+                <p>Web Audio 엔진 기반 발사/폭발/사이렌/승리음, 적 타격 시 0.05초 화이트 점멸 및 화면 진동 연출로 손맛 극대화</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="badge p-3">3순위</span>
+              <div class="item-content">
+                <strong>테이블 4번 · 10레벨 거대 모선(Mother Ship) 보스전</strong>
+                <p>화면 절반 크기 보스, 상단 체력바(HP Bar), 원형 탄막 및 빔 발사 패턴 공략, 보스 격파 후 승리 왕관 엔딩 연결</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <span>⬇️ 다음 단계로 확장</span>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="step-card step-2">
+          <div class="step-header">
+            <span class="step-num">STEP 2</span>
+            <span class="step-title">파워업 & 레벨 디자인 (Phase 2)</span>
+            <span class="step-tag">⭐ 플레이 볼륨 확대</span>
+          </div>
+          <div class="step-items">
+            <div class="step-item">
+              <span class="badge p-4">4순위</span>
+              <div class="item-content">
+                <strong>테이블 3번 · 아이템 파워업 드랍</strong>
+                <p>듀얼 레이저 ➔ 트리플 확산탄 ➔ 유도 미사일 강화 캡슐 및 화면 클리어 폭탄/자석/쉴드 서포트 아이템 드랍</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="badge p-5">5순위</span>
+              <div class="item-content">
+                <strong>테이블 5번/4번 · 로컬 데이터 저장 & 엘리트 적 기체</strong>
+                <p>localStorage 기반 최고 점수/골드 저장, 플레이어를 향해 돌진하는 자폭선 및 전방 쉴드 전함 추가</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flow-arrow">
+          <span>⬇️ 최종 상용화 고도화</span>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="step-card step-3">
+          <div class="step-header">
+            <span class="step-num">STEP 3</span>
+            <span class="step-title">메타 성장 & 3D 고도화 (Phase 3~4)</span>
+            <span class="step-tag">💎 스토어 경쟁력 극대화</span>
+          </div>
+          <div class="step-items">
+            <div class="step-item">
+              <span class="badge p-6">6순위</span>
+              <div class="item-content">
+                <strong>테이블 5번 · 격납고(Hangar) 기체 영구 업그레이드</strong>
+                <p>획득한 골드로 화력/이동속도/쉴드 시간 영구 강화 시스템 및 특수 기체 스킨 언락</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <span class="badge p-7">7순위</span>
+              <div class="item-content">
+                <strong>테이블 6번 · 3D 롤링 애니메이션 및 입체화</strong>
+                <p>상하 이동 시 좌우 3D 롤링(Banking) 틸트 연출, 다중 배경 원근감 및 Three.js 3D 모델링 렌더링</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Flowchart Diagram -->
+      <h3 style="font-size: 1.15rem; color: #cbd5e1; margin-bottom: 0.75rem;">📊 순서도 다이어그램 (Flowchart View)</h3>
+      <div class="diagram-box">
+        <div class="mermaid">
+flowchart TD
+    classDef t1 fill:#1e1b4b,stroke:#ef4444,stroke-width:3px,color:#fff,font-size:18px,font-weight:bold;
+    classDef t2 fill:#0f172a,stroke:#38bdf8,stroke-width:3px,color:#fff,font-size:18px,font-weight:bold;
+    classDef t3 fill:#311042,stroke:#a855f7,stroke-width:3px,color:#fff,font-size:18px,font-weight:bold;
+    classDef s1 fill:#1e293b,stroke:#ef4444,stroke-width:1.5px,color:#f8fafc,font-size:16px;
+    classDef s2 fill:#1e293b,stroke:#38bdf8,stroke-width:1.5px,color:#f8fafc,font-size:16px;
+    classDef s3 fill:#1e293b,stroke:#a855f7,stroke-width:1.5px,color:#f8fafc,font-size:16px;
+
+    T1["🚀 1단계 : 핵심 플레이 완성 (Phase 1)"]:::t1
+    A1["1순위: 테이블 1번 - 모바일 1:1 터치 조작 & 폭탄 버튼"]:::s1
+    A2["2순위: 테이블 2번 - 신스 SFX 사운드 & 화면 흔들림/플래시"]:::s1
+    A3["3순위: 테이블 4번 - 10레벨 거대 모선 보스전 (체력바 + 탄막)"]:::s1
+
+    T2["⭐ 2단계 : 파워업 & 레벨 디자인 (Phase 2)"]:::t2
+    B1["4순위: 테이블 3번 - 아이템 파워업 드랍 (트윈/확산/유도탄)"]:::s2
+    B2["5순위: 테이블 5번/4번 - 로컬 데이터 저장 & 엘리트 적 추가"]:::s2
+
+    T3["💎 3단계 : 메타 성장 & 3D 고도화 (Phase 3~4)"]:::t3
+    C1["6순위: 테이블 5번 - 격납고 업그레이드 시스템"]:::s3
+    C2["7순위: 테이블 6번 - 3D 롤링 애니메이션 및 입체화"]:::s3
+
+    T1 --> A1 --> A2 --> A3
+    A3 ==>|"다음 단계 (Next)"| T2
+    T2 --> B1 --> B2
+    B2 ==>|"최종 고도화 (Final)"| T3
+    T3 --> C1 --> C2
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Summary & Quick Win Rationale -->
+    <section class="section">
+      <h2 class="section-title">3. 기획자 추천 "가장 먼저 시도해볼 단계" Rationale</h2>
+      <div class="cards-grid">
+        <div class="info-card">
+          <h4>🎯 1순위: 모바일 1:1 터치 조작 (테이블 1번)</h4>
+          <p>모바일 스토어 출시의 최우선 기본기입니다. 가상 버튼 대신 손가락을 대고 끄는 대로 비행기가 따라오고 핑거 오프셋을 적용해야 진정한 모바일 게임의 모습을 갖춥니다.</p>
+        </div>
+        <div class="info-card">
+          <h4>🔊 2순위: 사운드 & 카메라 쉐이크 (테이블 2번)</h4>
+          <p>가장 적은 개발 공수로 체감 완성도를 3배 이상 끌어올리는 구간입니다. 외부 음원 파일 없이 Web Audio 신스로 구현하여 로딩 속도와 손맛을 동시에 잡습니다.</p>
+        </div>
+        <div class="info-card">
+          <h4>👾 3순위: 10레벨 거대 모선 보스전 (테이블 4번)</h4>
+          <p>현재의 단순 10초 버티기를 넘어, 거대한 보스의 탄막을 뚫고 파괴했을 때 비로소 왕관을 쓰는 극적인 엔딩 카타르시스가 완성됩니다.</p>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>
