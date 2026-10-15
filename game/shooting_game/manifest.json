@@ -1,0 +1,47 @@
+{
+  "name": "Cosmic Striker: 우주 슈팅 50",
+  "short_name": "Cosmic Striker",
+  "description": "5개 은하 구역, 거대 보스전, 17종 훈장 및 기체 강화 시스템을 갖춘 50단계 풀스케일 2D/3D 하이브리드 아케이드 우주 슈팅 게임",
+  "start_url": "./game_shooting_v.05.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#050711",
+  "theme_color": "#050711",
+  "lang": "ko",
+  "categories": [
+    "games",
+    "arcade",
+    "action"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "icons/feature-graphic-1024x500.png",
+      "sizes": "1024x500",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Cosmic Striker Overview"
+    }
+  ]
+}
+
