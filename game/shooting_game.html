@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cosmic Striker (2D 횡스크롤 우주 슈팅)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #0d1127 0%, #03040a 100%);
+      color: #e2e8f0;
+      font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    #game-container {
+      position: relative;
+      width: 960px;
+      height: 540px;
+      box-shadow: 0 10px 50px rgba(0, 240, 255, 0.2), 0 0 120px rgba(168, 85, 247, 0.15);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid rgba(0, 240, 255, 0.35);
+      background: #050711;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    /* Top Status HUD */
+    #hud {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 25px;
+      pointer-events: none;
+      z-index: 10;
+      background: linear-gradient(to bottom, rgba(5, 7, 17, 0.9), transparent);
+    }
+
+    .hud-section {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hud-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: #38bdf8;
+      font-weight: 700;
+    }
+
+    .hud-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      font-family: 'Courier New', Consolas, monospace;
+      text-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+    }
+
+    .lives-container {
+      display: flex;
+      gap: 6px;
+      margin-top: 2px;
+    }
+
+    .heart-icon {
+      font-size: 22px;
+      color: #ff0055;
+      filter: drop-shadow(0 0 6px rgba(255, 0, 85, 0.9));
+      transition: transform 0.2s;
+    }
+
+    .heart-icon.lost {
+      color: #475569;
+      filter: none;
+      opacity: 0.4;
+      transform: scale(0.85);
+    }
+
+    /* Overlay Screens */
+    .screen-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(3, 4, 10, 0.88);
+      backdrop-filter: blur(8px);
+      z-index: 20;
+      transition: opacity 0.25s ease;
+    }
+
+    .screen-overlay.hidden {
+      display: none;
+    }
+
+    .title {
+      font-size: 48px;
+      font-weight: 900;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, #00f0ff 0%, #a855f7 50%, #ff0055 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+      text-shadow: 0 0 35px rgba(0, 240, 255, 0.6);
+      text-align: center;
+    }
+
+    .gameover-title {
+      font-size: 52px;
+      font-weight: 900;
+      letter-spacing: 4px;
+      background: linear-gradient(135deg, #ff0055 0%, #ff5500 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 12px;
+      text-shadow: 0 0 40px rgba(255, 0, 85, 0.8);
+    }
+
+    .subtitle {
+      font-size: 16px;
+      color: #94a3b8;
+      margin-bottom: 25px;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .controls-guide {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      border-radius: 10px;
+      padding: 16px 28px;
+      margin-bottom: 25px;
+      display: flex;
+      gap: 32px;
+      font-size: 14px;
+    }
+
+    .control-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .key-badge {
+      background: #1e293b;
+      border: 1px solid #38bdf8;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: bold;
+      color: #38bdf8;
+      box-shadow: 0 0 10px rgba(56, 189, 248, 0.35);
+    }
+
+    .btn {
+      background: linear-gradient(135deg, #00f0ff 0%, #8b5cf6 100%);
+      color: #050711;
+      font-weight: 800;
+      font-size: 18px;
+      padding: 14px 40px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.6);
+      transition: all 0.2s ease;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+    }
+
+    .btn:hover {
+      transform: scale(1.06);
+      box-shadow: 0 0 45px rgba(168, 85, 247, 0.8);
+      color: #ffffff;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .stat-row {
+      display: flex;
+      gap: 40px;
+      margin-bottom: 25px;
+    }
+
+    .stat-box {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 14px 28px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-box .val {
+      font-size: 32px;
+      font-weight: bold;
+      color: #38bdf8;
+      font-family: 'Courier New', monospace;
+    }
+
+    .stat-box .lbl {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 4px;
+    }
+
+    #sound-btn {
+      position: absolute;
+      top: 15px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(56, 189, 248, 0.4);
+      color: #38bdf8;
+      font-size: 12px;
+      padding: 5px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      z-index: 100;
+      transition: background 0.2s;
+    }
+
+    #sound-btn:hover {
+      background: rgba(56, 189, 248, 0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game-container">
+    <button id="sound-btn">🔊 Sound: ON</button>
+
+    <!-- HUD -->
+    <div id="hud">
+      <div class="hud-section">
+        <span class="hud-label">SCORE</span>
+        <span class="hud-value" id="hud-score">00000</span>
+      </div>
+
+      <div class="hud-section" style="align-items: center;">
+        <span class="hud-label">MISSION LEVEL</span>
+        <div style="display: flex; align-items: baseline; gap: 8px;">
+          <span class="hud-value" id="hud-level" style="color: #fbbf24; font-size: 20px;">LV. 1 / 10</span>
+          <span style="font-size: 11px; color: #38bdf8; font-family: monospace;" id="hud-level-timer">(10.0s)</span>
+        </div>
+      </div>
+
+      <div class="hud-section" style="align-items: center;">
+        <span class="hud-label">SHIELD & LIVES</span>
+        <div class="lives-container" id="lives-container">
+          <span class="heart-icon" id="heart-1">♥</span>
+          <span class="heart-icon" id="heart-2">♥</span>
+          <span class="heart-icon" id="heart-3">♥</span>
+        </div>
+      </div>
+
+      <div class="hud-section" style="align-items: flex-end;">
+        <span class="hud-label">HIGH SCORE</span>
+        <span class="hud-value" id="hud-highscore">00000</span>
+      </div>
+    </div>
+
+    <!-- Canvas -->
+    <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+    <!-- Start Overlay -->
+    <div id="start-screen" class="screen-overlay">
+      <h1 class="title">COSMIC STRIKER</h1>
+      <p class="subtitle">2D 횡스크롤 우주 슈팅 &bull; 총 10레벨의 외계 UFO 군단을 돌파하라!</p>
+
+      <div class="controls-guide">
+        <div class="control-item">
+          <span class="key-badge">W / A / S / D  또는  방향키</span>
+          <span>전투기 상하좌우 이동</span>
+        </div>
+        <div class="control-item">
+          <span class="key-badge">SPACE (누르고 있기) / 마우스 클릭</span>
+          <span>플라즈마 미사일 연사</span>
+        </div>
+      </div>
+
+      <p style="font-size: 13px; color: #fbbf24; margin-bottom: 20px; font-weight: bold;">
+        ⭐ 10초마다 레벨 상승 (최대 10레벨) &bull; 10레벨 최종 돌파 시 승리의 왕관 획득!
+      </p>
+
+      <button id="start-btn" class="btn">출격 시작 (MISSION START)</button>
+    </div>
+
+    <!-- Game Over Overlay -->
+    <div id="gameover-screen" class="screen-overlay hidden">
+      <h1 class="gameover-title">GAME OVER</h1>
+      <p class="subtitle">모든 생명을 소진하여 전투기가 파괴되었습니다!</p>
+
+      <div class="stat-row">
+        <div class="stat-box">
+          <div class="val" id="final-score">0</div>
+          <div class="lbl">최종 점수 (FINAL SCORE)</div>
+        </div>
+        <div class="stat-box">
+          <div class="val" id="final-destroyed">0</div>
+          <div class="lbl">격추한 외계 UFO 수</div>
+        </div>
+        <div class="stat-box">
+          <div class="val" id="final-best">0</div>
+          <div class="lbl">최고 기록 (BEST)</div>
+        </div>
+      </div>
+
+      <button id="restart-btn" class="btn">다시 도전 (RETRY - [R])</button>
+    </div>
+
+    <!-- Victory Overlay -->
+    <div id="victory-screen" class="screen-overlay hidden" style="padding: 20px; overflow-y: auto;">
+      <h1 class="title" style="font-size: 38px; background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #10b981 100%); -webkit-background-clip: text; margin-bottom: 6px; text-shadow: 0 0 30px rgba(251, 191, 36, 0.8);">👑 MISSION COMPLETE! 👑</h1>
+      <p class="subtitle" style="margin-bottom: 12px; color: #fde68a; font-weight: bold;">
+        축하합니다! 10레벨의 극한 우주 함대전을 모두 돌파하여 '승리의 왕관'을 쟁취했습니다!
+      </p>
+
+      <!-- Victory Image -->
+      <div style="position: relative; width: 480px; max-height: 250px; border-radius: 12px; overflow: hidden; border: 3px solid #fbbf24; box-shadow: 0 0 40px rgba(251, 191, 36, 0.8); margin-bottom: 15px;">
+        <img src="victory_crown.jpg" alt="Victory Crown Jet" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <div style="position: absolute; bottom: 0; left: 0; width: 100%; background: linear-gradient(transparent, rgba(5,7,17,0.92)); padding: 8px 0; text-align: center; font-weight: 900; color: #fbbf24; font-size: 15px; letter-spacing: 2px;">
+          👑 승리 (VICTORY) 를 쟁취한 최강 전투기 👑
+        </div>
+      </div>
+
+      <div class="stat-row" style="margin-bottom: 15px;">
+        <div class="stat-box" style="padding: 10px 24px;">
+          <div class="val" id="victory-score" style="color: #fbbf24;">0</div>
+          <div class="lbl">최종 영광의 점수</div>
+        </div>
+        <div class="stat-box" style="padding: 10px 24px;">
+          <div class="val" id="victory-destroyed" style="color: #10b981;">0</div>
+          <div class="lbl">총 격추한 외계선</div>
+        </div>
+      </div>
+
+      <button id="victory-btn" class="btn" style="background: linear-gradient(135deg, #fbbf24 0%, #10b981 100%); box-shadow: 0 0 35px rgba(251, 191, 36, 0.9);">영광의 재출격 (PLAY AGAIN - [R])</button>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================
+       1. SYNTHESIZED AUDIO ENGINE (Web Audio API)
+       ========================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.muted = false;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+      }
+
+      playShoot() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.exponentialRampToValueAtTime(180, now + 0.1);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.1);
+      }
+
+      playEnemyShoot() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.linearRampToValueAtTime(140, now + 0.12);
+
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.12);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.12);
+      }
+
+      playExplosion() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const bufferSize = this.ctx.sampleRate * 0.35;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(1000, now);
+        filter.frequency.exponentialRampToValueAtTime(60, now + 0.35);
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        noise.start(now);
+      }
+
+      playHit() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.setValueAtTime(90, now + 0.1);
+
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+
+      playLevelUp() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now + idx * 0.08);
+          gain.gain.setValueAtTime(0.2, now + idx * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + idx * 0.08 + 0.15);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + idx * 0.08);
+          osc.stop(now + idx * 0.08 + 0.15);
+        });
+      }
+
+      playVictory() {
+        if (this.muted || !this.ctx) return;
+        const now = this.ctx.currentTime;
+        const fanfare = [
+          { f: 523.25, t: 0.0, d: 0.15 },
+          { f: 659.25, t: 0.15, d: 0.15 },
+          { f: 783.99, t: 0.30, d: 0.15 },
+          { f: 1046.50, t: 0.45, d: 0.45 },
+          { f: 880.00, t: 0.95, d: 0.20 },
+          { f: 1046.50, t: 1.20, d: 0.60 }
+        ];
+        fanfare.forEach(note => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(note.f, now + note.t);
+          gain.gain.setValueAtTime(0.25, now + note.t);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + note.t + note.d);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + note.t);
+          osc.stop(now + note.t + note.d);
+        });
+      }
+    }
+
+    const sounds = new SoundEngine();
+
+    /* ==========================================================
+       2. CONSTANTS & PARALLAX STARFIELD
+       ========================================================== */
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    const WIDTH = 960;
+    const HEIGHT = 540;
+
+    class Starfield {
+      constructor() {
+        this.stars = [];
+        // 3 Layers: Far (slow, small), Mid (medium), Close (fast, bright)
+        for (let i = 0; i < 70; i++) {
+          this.stars.push({
+            x: Math.random() * WIDTH,
+            y: Math.random() * HEIGHT,
+            speed: Math.random() * 0.8 + 0.4,
+            size: Math.random() * 1.2 + 0.6,
+            color: 'rgba(255, 255, 255, 0.4)'
+          });
+        }
+        for (let i = 0; i < 40; i++) {
+          this.stars.push({
+            x: Math.random() * WIDTH,
+            y: Math.random() * HEIGHT,
+            speed: Math.random() * 1.8 + 1.2,
+            size: Math.random() * 1.8 + 1.0,
+            color: 'rgba(147, 197, 253, 0.7)'
+          });
+        }
+        for (let i = 0; i < 20; i++) {
+          this.stars.push({
+            x: Math.random() * WIDTH,
+            y: Math.random() * HEIGHT,
+            speed: Math.random() * 3.5 + 2.5,
+            size: Math.random() * 2.5 + 1.8,
+            color: 'rgba(56, 189, 248, 0.95)'
+          });
+        }
+      }
+
+      update() {
+        for (let s of this.stars) {
+          s.x -= s.speed;
+          if (s.x < 0) {
+            s.x = WIDTH;
+            s.y = Math.random() * HEIGHT;
+          }
+        }
+      }
+
+      draw(c) {
+        // Space nebula glow
+        const grad = c.createLinearGradient(0, 0, WIDTH, HEIGHT);
+        grad.addColorStop(0, '#060814');
+        grad.addColorStop(0.5, '#0a0d24');
+        grad.addColorStop(1, '#050713');
+        c.fillStyle = grad;
+        c.fillRect(0, 0, WIDTH, HEIGHT);
+
+        // Draw stars
+        for (let s of this.stars) {
+          c.fillStyle = s.color;
+          c.beginPath();
+          c.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+          c.fill();
+        }
+      }
+    }
+
+    /* ==========================================================
+       3. PARTICLE SYSTEM
+       ========================================================== */
+    class Particle {
+      constructor(x, y, vx, vy, color, size, life) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.color = color;
+        this.size = size;
+        this.life = life;
+        this.maxLife = life;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life--;
+        this.size = Math.max(0.2, this.size * 0.96);
+      }
+
+      draw(c) {
+        c.save();
+        c.globalAlpha = Math.max(0, this.life / this.maxLife);
+        c.fillStyle = this.color;
+        c.shadowColor = this.color;
+        c.shadowBlur = 8;
+        c.beginPath();
+        c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        c.fill();
+        c.restore();
+      }
+    }
+
+    /* ==========================================================
+       4. BULLETS & LASERS
+       ========================================================== */
+    class Bullet {
+      constructor(x, y, vx, vy, isEnemy, color) {
+        this.x = x;
+        this.y = y;
+        this.vx = vx;
+        this.vy = vy;
+        this.isEnemy = isEnemy;
+        this.color = color || (isEnemy ? '#ff0055' : '#00f0ff');
+        this.width = isEnemy ? 12 : 18;
+        this.height = isEnemy ? 6 : 5;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+      }
+
+      draw(c) {
+        c.save();
+        c.shadowColor = this.color;
+        c.shadowBlur = 8;
+
+        // 1. 선명한 야광 바디 (Vivid Neon Body)
+        c.fillStyle = this.color;
+        c.beginPath();
+        c.roundRect(this.x - this.width / 2, this.y - this.height / 2, this.width, this.height, 3);
+        c.fill();
+
+        // 2. 고휘도 백색 발광 코어 (High-Luminance Core)
+        c.fillStyle = '#ffffff';
+        c.beginPath();
+        c.roundRect(this.x - this.width / 4, this.y - this.height / 4, this.width / 2, this.height / 2, 2);
+        c.fill();
+
+        c.restore();
+      }
+
+      getBounds() {
+        return {
+          left: this.x - this.width / 2,
+          right: this.x + this.width / 2,
+          top: this.y - this.height / 2,
+          bottom: this.y + this.height / 2
+        };
+      }
+    }
+
+    /* ==========================================================
+       5. PLAYER JET
+       ========================================================== */
+    class PlayerJet {
+      constructor() {
+        this.width = 46;
+        this.height = 28;
+        this.x = 90;
+        this.y = HEIGHT / 2;
+        this.speed = 5.5;
+
+        this.lives = 3;
+        this.shieldTimer = 180; // 3초 보호막 (60fps * 3 = 180프레임)
+        this.shootCooldown = 0;
+      }
+
+      reset() {
+        this.x = 90;
+        this.y = HEIGHT / 2;
+        this.lives = 3;
+        this.shieldTimer = 180; // 재시작 시에도 3초 무적 보호막
+        this.shootCooldown = 0;
+      }
+
+      respawn() {
+        this.x = 90;
+        this.y = HEIGHT / 2;
+        this.shieldTimer = 180; // 부활 시 3초 무적 보호막
+      }
+
+      hit() {
+        // 보호막이 활성화된 3초 동안은 무적
+        if (this.shieldTimer > 0) return false;
+        this.lives--;
+        sounds.playHit();
+        return true;
+      }
+
+      update(keys, particles, bullets) {
+        // 4-Directional Movement (W, A, S, D / Arrows)
+        if (keys['KeyW'] || keys['ArrowUp']) this.y -= this.speed;
+        if (keys['KeyS'] || keys['ArrowDown']) this.y += this.speed;
+        if (keys['KeyA'] || keys['ArrowLeft']) this.x -= this.speed;
+        if (keys['KeyD'] || keys['ArrowRight']) this.x += this.speed;
+
+        // Screen boundary clamp
+        this.x = Math.max(25, Math.min(WIDTH - 60, this.x));
+        this.y = Math.max(30, Math.min(HEIGHT - 30, this.y));
+
+        if (this.shieldTimer > 0) {
+          this.shieldTimer--;
+        }
+
+        // Engine Thruster Exhaust Particles
+        for (let i = 0; i < 2; i++) {
+          particles.push(new Particle(
+            this.x - this.width / 2 - 2,
+            this.y + (Math.random() * 8 - 4),
+            -(Math.random() * 4 + 4),
+            (Math.random() - 0.5) * 1.5,
+            Math.random() < 0.6 ? '#00f0ff' : '#38bdf8',
+            Math.random() * 3 + 2,
+            18
+          ));
+        }
+
+        // Continuous automatic shooting if Space or Left Mouse is held
+        if (this.shootCooldown > 0) {
+          this.shootCooldown--;
+        }
+        if ((keys['Space'] || keys['MouseDown']) && this.shootCooldown <= 0) {
+          this.shoot(bullets);
+          this.shootCooldown = 11; // High-cadence fire rate
+        }
+      }
+
+      shoot(bullets) {
+        sounds.playShoot();
+        // Dual laser cannons
+        bullets.push(new Bullet(this.x + this.width / 2 + 5, this.y - 7, 13, 0, false, '#00f0ff'));
+        bullets.push(new Bullet(this.x + this.width / 2 + 5, this.y + 7, 13, 0, false, '#00f0ff'));
+      }
+
+      draw(c) {
+        c.save();
+
+        // Shield expiring warning blink (< 0.8s)
+        if (this.shieldTimer > 0 && this.shieldTimer < 48 && Math.floor(this.shieldTimer / 4) % 2 === 0) {
+          c.globalAlpha = 0.6;
+        }
+
+        // --- 3-SECOND INVULNERABILITY SHIELD RENDERING ---
+        if (this.shieldTimer > 0) {
+          const remainingSec = (this.shieldTimer / 60).toFixed(1);
+          
+          c.save();
+          // Pulsing Shield Energy Bubble
+          const pulse = Math.sin(this.shieldTimer * 0.15) * 2;
+          const shieldRadius = 36 + pulse;
+          
+          c.strokeStyle = '#00f0ff';
+          c.shadowColor = '#00f0ff';
+          c.shadowBlur = 20;
+          c.lineWidth = 2.5;
+          
+          c.beginPath();
+          c.arc(this.x, this.y, shieldRadius, 0, Math.PI * 2);
+          c.stroke();
+
+          // Inner energy fill
+          c.fillStyle = 'rgba(0, 240, 255, 0.12)';
+          c.beginPath();
+          c.arc(this.x, this.y, shieldRadius, 0, Math.PI * 2);
+          c.fill();
+
+          // Rotating protective energy arcs
+          const angleOffset = this.shieldTimer * 0.08;
+          c.lineWidth = 3;
+          c.strokeStyle = '#ffffff';
+          c.beginPath();
+          c.arc(this.x, this.y, shieldRadius + 3, angleOffset, angleOffset + Math.PI * 0.6);
+          c.stroke();
+          c.beginPath();
+          c.arc(this.x, this.y, shieldRadius + 3, angleOffset + Math.PI, angleOffset + Math.PI * 1.6);
+          c.stroke();
+
+          // Shield Countdown Badge text above ship
+          c.font = 'bold 12px "Courier New", monospace';
+          c.fillStyle = '#00f0ff';
+          c.shadowColor = '#00f0ff';
+          c.shadowBlur = 8;
+          c.textAlign = 'center';
+          c.fillText(`🛡️ SHIELD ${remainingSec}s`, this.x, this.y - 44);
+          c.restore();
+        }
+
+        c.translate(this.x, this.y);
+
+        // --- DRAW FIGHTER JET (Facing Right) ---
+        c.shadowColor = '#00f0ff';
+        c.shadowBlur = 12;
+
+        // Main Wings (Swept back delta wings)
+        c.fillStyle = '#0f172a';
+        c.strokeStyle = '#38bdf8';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.moveTo(this.width / 2, 0); // Nose tip
+        c.lineTo(-this.width / 3, -this.height / 2); // Top wing tip
+        c.lineTo(-this.width / 2, -this.height / 4); // Top rear
+        c.lineTo(-this.width / 2, this.height / 4);  // Bottom rear
+        c.lineTo(-this.width / 3, this.height / 2);  // Bottom wing tip
+        c.closePath();
+        c.fill();
+        c.stroke();
+
+        // Cockpit Canopy (Glowing Cyan)
+        c.fillStyle = '#00f0ff';
+        c.beginPath();
+        c.moveTo(this.width / 4, 0);
+        c.lineTo(-this.width / 8, -5);
+        c.lineTo(-this.width / 4, 0);
+        c.lineTo(-this.width / 8, 5);
+        c.closePath();
+        c.fill();
+
+        // Dual Wingtip Plasma Cannons
+        c.fillStyle = '#ffffff';
+        c.fillRect(-this.width / 4, -this.height / 2 - 1, 10, 3);
+        c.fillRect(-this.width / 4, this.height / 2 - 2, 10, 3);
+
+        c.restore();
+      }
+
+      getBounds() {
+        return {
+          left: this.x - this.width / 2 + 4,
+          right: this.x + this.width / 2 - 4,
+          top: this.y - this.height / 2 + 3,
+          bottom: this.y + this.height / 2 - 3
+        };
+      }
+    }
+
+    /* ==========================================================
+       6. ALIEN UFO (외계인 비행접시 적기)
+       ========================================================== */
+    class AlienUFO {
+      constructor(x, y, type) {
+        this.x = x;
+        this.y = y;
+        this.baseY = y;
+        this.type = type || 'scout'; // 'scout', 'hunter', 'dreadnought'
+        this.time = Math.random() * 100;
+
+        if (this.type === 'scout') {
+          this.radiusX = 22;
+          this.radiusY = 12;
+          this.speed = 3.2;
+          this.hp = 1;
+          this.color = '#a855f7'; // 보라색 UFO 본체
+          this.bulletColor = '#00ff66'; // 요청: 보라색 UFO 총알은 야광 초록색!
+          this.shootInterval = 110 + Math.random() * 60;
+        } else if (this.type === 'hunter') {
+          this.radiusX = 18;
+          this.radiusY = 10;
+          this.speed = 4.4;
+          this.hp = 1;
+          this.color = '#ff0055';
+          this.bulletColor = '#ff0055'; // 야광 네온 핑크
+          this.shootInterval = 85 + Math.random() * 40;
+        } else {
+          // Dreadnought
+          this.radiusX = 32;
+          this.radiusY = 18;
+          this.speed = 1.8;
+          this.hp = 3;
+          this.color = '#eab308';
+          this.bulletColor = '#ffe600'; // 야광 네온 옐로우
+          this.shootInterval = 75;
+        }
+
+        this.shootTimer = Math.random() * this.shootInterval;
+      }
+
+      update(bullets, player, level) {
+        this.time += 0.05;
+        this.x -= this.speed;
+
+        // Flying maneuvers
+        if (this.type === 'scout') {
+          this.y = this.baseY + Math.sin(this.time * 1.5) * 35;
+        } else if (this.type === 'hunter') {
+          // Zigzag toward player's Y altitude
+          if (this.y < player.y) this.y += 1.2;
+          else this.y -= 1.2;
+        }
+
+        // Alien shooting towards player (scales with level)
+        const curLevel = level || 1;
+        const speedBonus = (curLevel - 1) * 5.5;
+        const effectiveInterval = Math.max(28, this.shootInterval - speedBonus);
+
+        this.shootTimer++;
+        if (this.shootTimer >= effectiveInterval && this.x < WIDTH - 40 && this.x > 80) {
+          this.shootTimer = 0;
+          sounds.playEnemyShoot();
+
+          if (this.type === 'dreadnought') {
+            bullets.push(new Bullet(this.x - this.radiusX, this.y - 8, -7.5, -1, true, this.bulletColor));
+            bullets.push(new Bullet(this.x - this.radiusX, this.y + 8, -7.5, 1, true, this.bulletColor));
+            if (curLevel >= 7) {
+              bullets.push(new Bullet(this.x - this.radiusX, this.y, -8.5, 0, true, this.bulletColor));
+            }
+          } else {
+            // Calculate angle towards player
+            const dx = player.x - this.x;
+            const dy = player.y - this.y;
+            const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+            const bulletSpeed = 6.5 + Math.min(2.5, (curLevel - 1) * 0.25);
+            const vx = (dx / dist) * bulletSpeed;
+            const vy = (dy / dist) * bulletSpeed;
+
+            bullets.push(new Bullet(this.x - this.radiusX, this.y, vx, vy, true, this.bulletColor));
+
+            if (curLevel >= 5 && this.type === 'scout') {
+              bullets.push(new Bullet(this.x - this.radiusX, this.y - 6, -7.5, 0, true, this.bulletColor));
+            }
+          }
+        }
+      }
+
+      draw(c) {
+        c.save();
+        c.translate(this.x, this.y);
+
+        c.shadowColor = this.color;
+        c.shadowBlur = 14;
+
+        // UFO Saucer Disc
+        c.fillStyle = '#1e1b4b';
+        c.strokeStyle = this.color;
+        c.lineWidth = 2.5;
+
+        c.beginPath();
+        c.ellipse(0, 0, this.radiusX, this.radiusY, 0, 0, Math.PI * 2);
+        c.fill();
+        c.stroke();
+
+        // UFO Cockpit Dome
+        c.fillStyle = this.color;
+        c.beginPath();
+        c.ellipse(0, -this.radiusY * 0.5, this.radiusX * 0.45, this.radiusY * 0.75, 0, Math.PI, Math.PI * 2);
+        c.fill();
+
+        // Alien pulsing lights underneath
+        const lightCount = 4;
+        for (let i = 0; i < lightCount; i++) {
+          const lx = -this.radiusX * 0.65 + (i * (this.radiusX * 1.3) / (lightCount - 1));
+          c.fillStyle = Math.floor(this.time * 5 + i) % 2 === 0 ? '#ffffff' : this.color;
+          c.beginPath();
+          c.arc(lx, 3, 2, 0, Math.PI * 2);
+          c.fill();
+        }
+
+        c.restore();
+      }
+
+      getBounds() {
+        return {
+          left: this.x - this.radiusX,
+          right: this.x + this.radiusX,
+          top: this.y - this.radiusY,
+          bottom: this.y + this.radiusY
+        };
+      }
+    }
+
+    /* ==========================================================
+       7. MAIN GAME CONTROLLER
+       ========================================================== */
+    class CosmicStrikerGame {
+      constructor() {
+        this.starfield = new Starfield();
+        this.player = new PlayerJet();
+        this.bullets = [];
+        this.enemies = [];
+        this.particles = [];
+
+        this.score = 0;
+        this.enemiesDestroyed = 0;
+        this.highScore = parseInt(localStorage.getItem('cosmic_best') || '0', 10);
+        this.state = 'START'; // 'START', 'PLAYING', 'GAMEOVER'
+
+        this.level = 1;
+        this.maxLevel = 10;
+        this.levelDuration = 10 * 60; // 10초 (600프레임) 마다 레벨 증가
+        this.levelTimer = 0;
+        this.levelUpBannerTimer = 0;
+
+        this.enemySpawnTimer = 0;
+        this.keys = {};
+
+        // DOM elements
+        this.hudScore = document.getElementById('hud-score');
+        this.hudLevel = document.getElementById('hud-level');
+        this.hudLevelTimer = document.getElementById('hud-level-timer');
+        this.hudHighScore = document.getElementById('hud-highscore');
+        this.startScreen = document.getElementById('start-screen');
+        this.gameoverScreen = document.getElementById('gameover-screen');
+        this.victoryScreen = document.getElementById('victory-screen');
+        this.finalScore = document.getElementById('final-score');
+        this.finalDestroyed = document.getElementById('final-destroyed');
+        this.finalBest = document.getElementById('final-best');
+        this.victoryScore = document.getElementById('victory-score');
+        this.victoryDestroyed = document.getElementById('victory-destroyed');
+
+        this.hudHighScore.textContent = String(this.highScore).padStart(5, '0');
+
+        this.bindEvents();
+      }
+
+      start() {
+        sounds.init();
+        this.state = 'PLAYING';
+        this.score = 0;
+        this.enemiesDestroyed = 0;
+        this.level = 1;
+        this.levelTimer = 0;
+        this.levelUpBannerTimer = 0;
+        this.player.reset();
+        this.bullets = [];
+        this.enemies = [];
+        this.particles = [];
+        this.enemySpawnTimer = 0;
+
+        this.hudLevel.textContent = 'LV. 1 / 10';
+        this.hudLevelTimer.textContent = '(10.0s)';
+        this.updateLivesHUD();
+        this.startScreen.classList.add('hidden');
+        this.gameoverScreen.classList.add('hidden');
+        this.victoryScreen.classList.add('hidden');
+      }
+
+      victory() {
+        if (this.state === 'VICTORY') return;
+        this.state = 'VICTORY';
+        sounds.playVictory();
+
+        if (this.score > this.highScore) {
+          this.highScore = this.score;
+          localStorage.setItem('cosmic_best', this.highScore);
+          this.hudHighScore.textContent = String(this.highScore).padStart(5, '0');
+        }
+
+        this.victoryScore.textContent = this.score;
+        this.victoryDestroyed.textContent = this.enemiesDestroyed;
+        this.victoryScreen.classList.remove('hidden');
+
+        // Confetti celebratory explosion
+        for (let k = 0; k < 70; k++) {
+          const angle = Math.random() * Math.PI * 2;
+          const spd = Math.random() * 8 + 2;
+          this.particles.push(new Particle(
+            Math.random() * WIDTH,
+            Math.random() * (HEIGHT * 0.7),
+            Math.cos(angle) * spd,
+            Math.sin(angle) * spd,
+            ['#fbbf24', '#f59e0b', '#10b981', '#00f0ff', '#ff0055'][Math.floor(Math.random() * 5)],
+            Math.random() * 4 + 2,
+            120
+          ));
+        }
+      }
+
+      gameOver() {
+        if (this.state === 'GAMEOVER') return;
+        this.state = 'GAMEOVER';
+        sounds.playExplosion();
+
+        // Massive ship explosion
+        for (let i = 0; i < 50; i++) {
+          const angle = Math.random() * Math.PI * 2;
+          const spd = Math.random() * 9 + 2;
+          this.particles.push(new Particle(
+            this.player.x,
+            this.player.y,
+            Math.cos(angle) * spd,
+            Math.sin(angle) * spd,
+            i % 2 === 0 ? '#00f0ff' : '#ff0055',
+            Math.random() * 5 + 2,
+            50
+          ));
+        }
+
+        if (this.score > this.highScore) {
+          this.highScore = this.score;
+          localStorage.setItem('cosmic_best', this.highScore);
+          this.hudHighScore.textContent = String(this.highScore).padStart(5, '0');
+        }
+
+        this.finalScore.textContent = this.score;
+        this.finalDestroyed.textContent = this.enemiesDestroyed;
+        this.finalBest.textContent = this.highScore;
+        this.gameoverScreen.classList.remove('hidden');
+      }
+
+      updateLivesHUD() {
+        for (let i = 1; i <= 3; i++) {
+          const heart = document.getElementById(`heart-${i}`);
+          if (i <= this.player.lives) {
+            heart.classList.remove('lost');
+          } else {
+            heart.classList.add('lost');
+          }
+        }
+      }
+
+      bindEvents() {
+        window.addEventListener('keydown', (e) => {
+          this.keys[e.code] = true;
+
+          if (e.code === 'Space') {
+            e.preventDefault();
+            if (this.state === 'START') this.start();
+          } else if (e.code === 'KeyR') {
+            if (this.state === 'GAMEOVER' || this.state === 'VICTORY') this.start();
+          } else if (e.code === 'F1') {
+            e.preventDefault(); // 브라우저 도움말 팝업 방지
+            if (this.state === 'PLAYING') {
+              // 치트키: 10초(600프레임) 무적 보호막 발동!
+              this.player.shieldTimer = 10 * 60;
+              sounds.playLevelUp();
+              for (let k = 0; k < 35; k++) {
+                const angle = Math.random() * Math.PI * 2;
+                const spd = Math.random() * 8 + 2;
+                this.particles.push(new Particle(
+                  this.player.x, this.player.y,
+                  Math.cos(angle) * spd, Math.sin(angle) * spd,
+                  '#00f0ff',
+                  Math.random() * 4 + 2,
+                  45
+                ));
+              }
+            }
+          }
+        });
+
+        window.addEventListener('keyup', (e) => {
+          this.keys[e.code] = false;
+        });
+
+        canvas.addEventListener('pointerdown', (e) => {
+          this.keys['MouseDown'] = true;
+          if (this.state === 'START') this.start();
+        });
+
+        window.addEventListener('pointerup', () => {
+          this.keys['MouseDown'] = false;
+        });
+
+        document.getElementById('start-btn').addEventListener('click', () => this.start());
+        document.getElementById('restart-btn').addEventListener('click', () => this.start());
+        document.getElementById('victory-btn').addEventListener('click', () => this.start());
+
+        const soundBtn = document.getElementById('sound-btn');
+        soundBtn.addEventListener('click', () => {
+          sounds.init();
+          sounds.muted = !sounds.muted;
+          soundBtn.textContent = sounds.muted ? '🔇 Sound: OFF' : '🔊 Sound: ON';
+        });
+      }
+
+      spawnEnemy() {
+        const rand = Math.random();
+        let type = 'scout';
+        if (rand < 0.50) {
+          type = 'scout';
+        } else if (rand < 0.80) {
+          type = 'hunter';
+        } else {
+          type = 'dreadnought';
+        }
+
+        const y = Math.random() * (HEIGHT - 120) + 60;
+        this.enemies.push(new AlienUFO(WIDTH + 30, y, type));
+      }
+
+      update() {
+        this.starfield.update();
+
+        // Update particles
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          this.particles[i].update();
+          if (this.particles[i].life <= 0) {
+            this.particles.splice(i, 1);
+          }
+        }
+        if (this.particles.length > 150) {
+          this.particles.splice(0, this.particles.length - 150);
+        }
+
+        if (this.state === 'VICTORY') {
+          // Continuous victory confetti fireworks
+          if (Math.random() < 0.25) {
+            const fx = Math.random() * WIDTH;
+            const fy = Math.random() * (HEIGHT * 0.6);
+            const col = ['#fbbf24', '#f59e0b', '#10b981', '#00f0ff', '#ff0055'][Math.floor(Math.random() * 5)];
+            for (let i = 0; i < 12; i++) {
+              const a = Math.random() * Math.PI * 2;
+              const s = Math.random() * 5 + 1;
+              this.particles.push(new Particle(fx, fy, Math.cos(a) * s, Math.sin(a) * s, col, 3, 45));
+            }
+          }
+          return;
+        }
+
+        if (this.state !== 'PLAYING') return;
+
+        // Survival score
+        this.score += 1;
+        this.hudScore.textContent = String(this.score).padStart(5, '0');
+
+        // --- LEVEL PROGRESSION (10초마다 1레벨 상승, 최대 10레벨) ---
+        this.levelTimer++;
+        const remainingFrames = this.levelDuration - this.levelTimer;
+        const remainingSec = Math.max(0, remainingFrames / 60).toFixed(1);
+
+        if (this.level < this.maxLevel) {
+          this.hudLevelTimer.textContent = `(${remainingSec}s)`;
+        } else {
+          this.hudLevelTimer.textContent = `(FINAL: ${remainingSec}s)`;
+        }
+
+        if (this.levelTimer >= this.levelDuration) {
+          this.levelTimer = 0;
+          if (this.level < this.maxLevel) {
+            this.level++;
+            this.hudLevel.textContent = `LV. ${this.level} / 10`;
+            this.levelUpBannerTimer = 120; // 2초간 배너
+            sounds.playLevelUp();
+            // 레벨업 축하 파티클
+            for (let k = 0; k < 25; k++) {
+              const angle = Math.random() * Math.PI * 2;
+              const spd = Math.random() * 6 + 2;
+              this.particles.push(new Particle(
+                this.player.x, this.player.y,
+                Math.cos(angle) * spd, Math.sin(angle) * spd,
+                '#fbbf24', Math.random() * 4 + 2, 35
+              ));
+            }
+          } else {
+            // 10레벨 모두 생존! -> 최종 승리 달성!
+            this.victory();
+            return;
+          }
+        }
+
+        if (this.levelUpBannerTimer > 0) {
+          this.levelUpBannerTimer--;
+        }
+
+        // Player update
+        this.player.update(this.keys, this.particles, this.bullets);
+
+        // Enemy spawn logic (레벨이 오를수록 스폰 간격 단축 & 다중 스폰)
+        this.enemySpawnTimer++;
+        const spawnInterval = Math.max(20, 95 - (this.level - 1) * 8);
+        if (this.enemySpawnTimer >= spawnInterval) {
+          this.enemySpawnTimer = 0;
+          this.spawnEnemy();
+          if (this.level >= 4 && Math.random() < 0.35) {
+            this.spawnEnemy();
+          }
+          if (this.level >= 7 && Math.random() < 0.5) {
+            this.spawnEnemy();
+          }
+        }
+
+        // Bullets update & filtering
+        for (let i = this.bullets.length - 1; i >= 0; i--) {
+          const b = this.bullets[i];
+          b.update();
+          if (b.x < -30 || b.x > WIDTH + 30 || b.y < -30 || b.y > HEIGHT + 30) {
+            this.bullets.splice(i, 1);
+          }
+        }
+
+        // Enemies update & filtering
+        for (let i = this.enemies.length - 1; i >= 0; i--) {
+          const enemy = this.enemies[i];
+          enemy.update(this.bullets, this.player, this.level);
+
+          // Ship-to-Enemy direct collision
+          const pb = this.player.getBounds();
+          const eb = enemy.getBounds();
+          if (
+            pb.left < eb.right &&
+            pb.right > eb.left &&
+            pb.top < eb.bottom &&
+            pb.bottom > eb.top
+          ) {
+            // If shield is active, shield absorbs the impact and destroys the ramming enemy!
+            if (this.player.shieldTimer > 0) {
+              enemy.hp = 0;
+              sounds.playExplosion();
+              this.enemiesDestroyed++;
+              this.score += 100;
+              for (let k = 0; k < 20; k++) {
+                const angle = Math.random() * Math.PI * 2;
+                const spd = Math.random() * 6 + 1.5;
+                this.particles.push(new Particle(
+                  enemy.x, enemy.y,
+                  Math.cos(angle) * spd,
+                  Math.sin(angle) * spd,
+                  '#00f0ff',
+                  3,
+                  25
+                ));
+              }
+              this.enemies.splice(i, 1);
+              continue;
+            } else if (this.player.hit()) {
+              // Player killed -> Explode & Respawn with 3-second shield!
+              this.handlePlayerDeath();
+              return; // 즉시 반환하여 배열 변조로 인한 루프 크래시/프리즈 완벽 방지
+            }
+          }
+
+          if (enemy.x < -50) {
+            this.enemies.splice(i, 1);
+          }
+        }
+
+        // --- BULLET COLLISIONS ---
+        for (let bIdx = this.bullets.length - 1; bIdx >= 0; bIdx--) {
+          const b = this.bullets[bIdx];
+          if (!b) continue;
+          const bb = b.getBounds();
+
+          if (!b.isEnemy) {
+            // Player bullet hits Enemy UFO
+            for (let eIdx = this.enemies.length - 1; eIdx >= 0; eIdx--) {
+              const enemy = this.enemies[eIdx];
+              if (!enemy) continue;
+              const eb = enemy.getBounds();
+
+              if (
+                bb.left < eb.right &&
+                bb.right > eb.left &&
+                bb.top < eb.bottom &&
+                bb.bottom > eb.top
+              ) {
+                // Bullet hit sparks
+                for (let k = 0; k < 6; k++) {
+                  this.particles.push(new Particle(
+                    b.x, b.y,
+                    (Math.random() - 0.5) * 5,
+                    (Math.random() - 0.5) * 5,
+                    '#00f0ff', 2.5, 12
+                  ));
+                }
+
+                this.bullets.splice(bIdx, 1);
+                enemy.hp--;
+
+                if (enemy.hp <= 0) {
+                  // UFO destroyed!
+                  sounds.playExplosion();
+                  this.enemiesDestroyed++;
+                  this.score += enemy.type === 'dreadnought' ? 300 : (enemy.type === 'hunter' ? 150 : 100);
+
+                  // Explosion debris
+                  for (let k = 0; k < 20; k++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const spd = Math.random() * 6 + 1.5;
+                    this.particles.push(new Particle(
+                      enemy.x, enemy.y,
+                      Math.cos(angle) * spd,
+                      Math.sin(angle) * spd,
+                      enemy.color,
+                      Math.random() * 3.5 + 2,
+                      25
+                    ));
+                  }
+
+                  this.enemies.splice(eIdx, 1);
+                }
+                break;
+              }
+            }
+          } else {
+            // Enemy laser hits Player or Player Shield
+            const pb = this.player.getBounds();
+            if (
+              bb.left < pb.right &&
+              bb.right > pb.left &&
+              bb.top < pb.bottom &&
+              bb.bottom > pb.top
+            ) {
+              this.bullets.splice(bIdx, 1);
+
+              if (this.player.shieldTimer > 0) {
+                // 3-second shield safely deflects enemy laser!
+                for (let k = 0; k < 8; k++) {
+                  this.particles.push(new Particle(
+                    b.x, b.y,
+                    (Math.random() - 0.5) * 6,
+                    (Math.random() - 0.5) * 6,
+                    '#00f0ff', 3, 16
+                  ));
+                }
+              } else if (this.player.hit()) {
+                // Player killed -> Explode & Respawn with 3-second shield!
+                this.handlePlayerDeath();
+                return; // 즉시 반환하여 루프 중단 및 프리즈 방지
+              }
+            }
+          }
+        }
+      }
+
+      handlePlayerDeath() {
+        sounds.playExplosion();
+        // Ship death explosion at current location
+        for (let k = 0; k < 35; k++) {
+          const angle = Math.random() * Math.PI * 2;
+          const spd = Math.random() * 8 + 2;
+          this.particles.push(new Particle(
+            this.player.x, this.player.y,
+            Math.cos(angle) * spd,
+            Math.sin(angle) * spd,
+            k % 2 === 0 ? '#00f0ff' : '#ff0055',
+            Math.random() * 4 + 2,
+            40
+          ));
+        }
+
+        this.updateLivesHUD();
+
+        if (this.player.lives <= 0) {
+          this.gameOver();
+        } else {
+          // 죽으면 다시 시작 (부활) & 3초 무적 보호막 부여!
+          this.player.respawn();
+          // 화면의 적 탄환을 정리하여 부활 즉시 연속 피격 방지
+          this.bullets = this.bullets.filter(b => !b.isEnemy);
+        }
+      }
+
+      draw() {
+        ctx.clearRect(0, 0, WIDTH, HEIGHT);
+
+        // 1. Starfield background
+        this.starfield.draw(ctx);
+
+        // 2. Particles
+        for (let p of this.particles) {
+          p.draw(ctx);
+        }
+
+        // 3. Bullets
+        for (let b of this.bullets) {
+          b.draw(ctx);
+        }
+
+        // 4. Enemies
+        for (let enemy of this.enemies) {
+          enemy.draw(ctx);
+        }
+
+        // 5. Player Jet
+        if (this.state !== 'GAMEOVER' && this.state !== 'VICTORY') {
+          this.player.draw(ctx);
+        }
+
+        // 6. Level Up Banner
+        if (this.levelUpBannerTimer > 0) {
+          ctx.save();
+          const alpha = Math.min(1, this.levelUpBannerTimer / 30);
+          ctx.globalAlpha = alpha;
+          ctx.font = 'bold 36px "Segoe UI", Arial, sans-serif';
+          ctx.fillStyle = '#fbbf24';
+          ctx.shadowColor = '#fbbf24';
+          ctx.shadowBlur = 25;
+          ctx.textAlign = 'center';
+          ctx.fillText(`⚡ LEVEL ${this.level} REACHED! ⚡`, WIDTH / 2, HEIGHT / 2 - 50);
+          ctx.font = 'bold 16px "Segoe UI", Arial, sans-serif';
+          ctx.fillStyle = '#ffffff';
+          ctx.shadowBlur = 10;
+          ctx.fillText(`적 UFO 함대 증원 & 레이저 화력 증가!`, WIDTH / 2, HEIGHT / 2 - 15);
+          ctx.restore();
+        }
+      }
+
+      loop() {
+        this.update();
+        this.draw();
+        requestAnimationFrame(() => this.loop());
+      }
+    }
+
+    // Launch game
+    const game = new CosmicStrikerGame();
+    game.loop();
+  </script>
+</body>
+</html>
+
+

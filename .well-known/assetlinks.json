@@ -1,0 +1,13 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.joonvectord.striker",
+      "sha256_cert_fingerprints": [
+        "01:1C:87:66:C6:C5:07:94:67:15:F5:1A:BF:0D:69:A5:AC:10:14:85:EB:97:A4:4A:20:38:63:75:CC:13:1F:65",
+        "B1:ED:E3:44:9A:8C:E1:F5:F2:82:2E:02:4F:55:F0:F1:D3:0D:CB:DF:8C:2E:E8:A8:5B:58:19:20:63:2E:ED:2C"
+      ]
+    }
+  }
+]

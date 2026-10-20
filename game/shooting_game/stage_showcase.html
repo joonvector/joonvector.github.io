@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Cosmic Striker - 50레벨 5개 세트 & 보스 도감</title>
+  <style>
+    :root {
+      --bg: #030712;
+      --card-bg: rgba(15, 23, 42, 0.85);
+      --border: rgba(56, 189, 248, 0.25);
+      --text: #f8fafc;
+      --subtext: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(circle at 50% 20%, #0c142b 0%, #030712 100%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      padding: 24px 16px 60px;
+      line-height: 1.5;
+    }
+    .header {
+      text-align: center;
+      max-width: 860px;
+      margin: 0 auto 32px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      background: rgba(0, 240, 255, 0.15);
+      border: 1px solid #00f0ff;
+      border-radius: 999px;
+      color: #00f0ff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 900;
+      background: linear-gradient(135deg, #00f0ff, #a855f7, #ff0055);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--subtext);
+      font-size: 14px;
+    }
+    .container {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+    }
+    .set-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+      position: relative;
+      overflow: hidden;
+    }
+    .set-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 3px;
+    }
+    .set-1::before { background: linear-gradient(90deg, #00f0ff, #38bdf8); }
+    .set-2::before { background: linear-gradient(90deg, #ef4444, #f97316); }
+    .set-3::before { background: linear-gradient(90deg, #10b981, #34d399); }
+    .set-4::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .set-5::before { background: linear-gradient(90deg, #a855f7, #c084fc); }
+
+    .set-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .set-title {
+      font-size: 19px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .set-levels {
+      font-size: 13px;
+      padding: 3px 10px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #cbd5e1;
+      font-weight: 600;
+    }
+    .grid-images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 640px) {
+      .grid-images {
+        grid-template-columns: 1fr;
+      }
+    }
+    .image-box {
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+    .image-box img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+    .image-box:hover img {
+      transform: scale(1.04);
+    }
+    .image-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 8px 12px;
+      background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+    .info-box {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      font-size: 13px;
+    }
+    .info-item {
+      display: flex;
+      flex-direction: column;
+    }
+    .info-item .label {
+      color: var(--subtext);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+    .info-item .value {
+      font-weight: 700;
+    }
+    .actions {
+      margin-top: 36px;
+      text-align: center;
+    }
+    .btn-play {
+      display: inline-block;
+      background: linear-gradient(135deg, #00f0ff, #0284c7);
+      color: #030712;
+      font-weight: 800;
+      font-size: 16px;
+      padding: 14px 36px;
+      border-radius: 999px;
+      text-decoration: none;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.5);
+      transition: all 0.2s ease;
+    }
+    .btn-play:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 35px rgba(0, 240, 255, 0.8);
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="badge">PHASE 1 : STEP 3 완료</div>
+    <h1>50레벨 5개 우주 세트 & 보스 전함 도감</h1>
+    <p class="subtitle">각 세트(10레벨 단위)마다 독점 우주 테마 배경과 고유 보스 전함이 출격합니다.</p>
+  </div>
+
+  <div class="container">
+    <!-- SET 1 -->
+    <div class="set-card set-1">
+      <div class="set-header">
+        <div class="set-title" style="color: #00f0ff;">
+          <span>🌌 SET 1: 시안 네뷸라 (CYAN NEBULA)</span>
+        </div>
+        <div class="set-levels">LV. 1 ~ 10 (보스: LV. 10)</div>
+      </div>
+      <div class="grid-images">
+        <div class="image-box">
+          <img src="assets/set1_bg.jpg" alt="Set 1 우주 배경">
+          <div class="image-label">우주 배경: 푸른 고리 행성과 딥 시안 성운</div>
+        </div>
+        <div class="image-box">
+          <img src="assets/set1_boss.jpg" alt="Set 1 보스 전함">
+          <div class="image-label">보스: GIGA CRUISER [Azure Overlord]</div>
+        </div>
+      </div>
+      <div class="info-box">
+        <div class="info-item">
+          <span class="label">보스 체력 (HP)</span>
+          <span class="value" style="color:#00f0ff;">45 HP (입문형)</span>
+        </div>
+        <div class="info-item">
+          <span class="label">대표 공격 패턴</span>
+          <span class="value">상하 듀얼 플라즈마포 + 광역 3점사 부채꼴 탄막</span>
+        </div>
+        <div class="info-item">
+          <span class="label">광폭화 기믹 (HP 40% 이하)</span>
+          <span class="value">탄속 30% 증가 및 고속 연속 직격 레이저 발사</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SET 2 -->
+    <div class="set-card set-2">
+      <div class="set-header">
+        <div class="set-title" style="color: #ef4444;">
+          <span>🔥 SET 2: 크림슨 초신성 (CRIMSON SUPERNOVA)</span>
+        </div>
+        <div class="set-levels">LV. 11 ~ 20 (보스: LV. 20)</div>
+      </div>
+      <div class="grid-images">
+        <div class="image-box">
+          <img src="assets/set2_bg.jpg" alt="Set 2 우주 배경">
+          <div class="image-label">우주 배경: 붉은 불꽃 플라즈마 & 초신성 폭풍</div>
+        </div>
+        <div class="image-box">
+          <img src="assets/set2_boss.jpg" alt="Set 2 보스 전함">
+          <div class="image-label">보스: INFERNO DREADNOUGHT [Blaze Behemoth]</div>
+        </div>
+      </div>
+      <div class="info-box">
+        <div class="info-item">
+          <span class="label">보스 체력 (HP)</span>
+          <span class="value" style="color:#ef4444;">70 HP (+55% 증가)</span>
+        </div>
+        <div class="info-item">
+          <span class="label">대표 공격 패턴</span>
+          <span class="value">용암 레일건 집중 포화 + 4연장 마그마 살보</span>
+        </div>
+        <div class="info-item">
+          <span class="label">광폭화 기믹 (HP 40% 이하)</span>
+          <span class="value">전방 5방향 마그마 폭풍 일제 사격</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SET 3 -->
+    <div class="set-card set-3">
+      <div class="set-header">
+        <div class="set-title" style="color: #10b981;">
+          <span>☣️ SET 3: 에메랄드 소행성대 (EMERALD ASTEROIDS)</span>
+        </div>
+        <div class="set-levels">LV. 21 ~ 30 (보스: LV. 30)</div>
+      </div>
+      <div class="grid-images">
+        <div class="image-box">
+          <img src="assets/set3_bg.jpg" alt="Set 3 우주 배경">
+          <div class="image-label">우주 배경: 에메랄드 펄서 먼지 & 독성 소행성대</div>
+        </div>
+        <div class="image-box">
+          <img src="assets/set3_boss.jpg" alt="Set 3 보스 전함">
+          <div class="image-label">보스: VIPER HIVE CARRIER [Toxin Queen]</div>
+        </div>
+      </div>
+      <div class="info-box">
+        <div class="info-item">
+          <span class="label">보스 체력 (HP)</span>
+          <span class="value" style="color:#10b981;">95 HP</span>
+        </div>
+        <div class="info-item">
+          <span class="label">대표 공격 패턴</span>
+          <span class="value">5방향 맹독 스프레드 탄환 + 플레이어 정밀 조준탄</span>
+        </div>
+        <div class="info-item">
+          <span class="label">광폭화 기믹 (HP 40% 이하)</span>
+          <span class="value">사인파(S자) 독침 기관총 난사</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SET 4 -->
+    <div class="set-card set-4">
+      <div class="set-header">
+        <div class="set-title" style="color: #f59e0b;">
+          <span>☀️ SET 4: 골든 펄서 성운 (GOLDEN PULSAR)</span>
+        </div>
+        <div class="set-levels">LV. 31 ~ 40 (보스: LV. 40)</div>
+      </div>
+      <div class="grid-images">
+        <div class="image-box">
+          <img src="assets/set4_bg.jpg" alt="Set 4 우주 배경">
+          <div class="image-label">우주 배경: 황금빛 펄서 자기장 & 코로나 폭풍</div>
+        </div>
+        <div class="image-box">
+          <img src="assets/set4_boss.jpg" alt="Set 4 보스 전함">
+          <div class="image-label">보스: SOLARIS IRON FORTRESS [Aegis Citadel]</div>
+        </div>
+      </div>
+      <div class="info-box">
+        <div class="info-item">
+          <span class="label">보스 체력 (HP)</span>
+          <span class="value" style="color:#f59e0b;">130 HP (철벽 요새)</span>
+        </div>
+        <div class="info-item">
+          <span class="label">대표 공격 패턴</span>
+          <span class="value">8방향 회전 태양꽃 탄막 + 3연장 중포 일제 사격</span>
+        </div>
+        <div class="info-item">
+          <span class="label">광폭화 기믹 (HP 40% 이하)</span>
+          <span class="value">12방향 전방위 태양 폭발 탄막 세례</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SET 5 -->
+    <div class="set-card set-5">
+      <div class="set-header">
+        <div class="set-title" style="color: #a855f7;">
+          <span>🌌 SET 5: 보이드 사건지평선 (VOID EVENT HORIZON - FINAL)</span>
+        </div>
+        <div class="set-levels">LV. 41 ~ 50 (보스: LV. 50 최종 보스)</div>
+      </div>
+      <div class="grid-images">
+        <div class="image-box">
+          <img src="assets/set5_bg.jpg" alt="Set 5 우주 배경">
+          <div class="image-label">우주 배경: 초대질량 블랙홀 왜곡 중력원 & 심연의 보이드</div>
+        </div>
+        <div class="image-box">
+          <img src="assets/set5_boss.jpg" alt="Set 5 보스 전함">
+          <div class="image-label">최종 보스: VOID TITAN EMPEROR [Chronos Omega]</div>
+        </div>
+      </div>
+      <div class="info-box">
+        <div class="info-item">
+          <span class="label">보스 체력 (HP)</span>
+          <span class="value" style="color:#a855f7;">175 HP (최대)</span>
+        </div>
+        <div class="info-item">
+          <span class="label">대표 공격 패턴</span>
+          <span class="value">블랙홀 소용돌이 나선 탄막 + 7방향 중력 파동</span>
+        </div>
+        <div class="info-item">
+          <span class="label">광폭화 기믹 (HP 40% 이하)</span>
+          <span class="value">플레이어 예측 3열 요격탄 + 초고속 칠흑 탄막</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <a href="game_shooting_0919.html" class="btn-play">🚀 Cosmic Striker 출격하기</a>
+  </div>
+</body>
+</html>
+
