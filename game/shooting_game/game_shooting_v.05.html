@@ -2327,7 +2327,7 @@
         bossLevel: 10,
         bossName: "GIGA CRUISER [AZURE OVERLORD]",
         bossType: "giga_cruiser",
-        bossHp: 700,
+        bossHp: 550,
         themeColor: '#00f0ff',
         accentColor: '#38bdf8',
         bulletColor: '#00f0ff'
@@ -4245,10 +4245,17 @@
         this.tiltAngle = (this.tiltAngle || 0) + (targetTilt - (this.tiltAngle || 0)) * 0.18;
         this.tiltScaleY = 1.0 - Math.abs(this.tiltAngle) * 0.35;
 
-        // Alien shooting towards player (scales with level)
+        // Alien shooting towards player (scales progressively by Set 1~5 and Level)
         const curLevel = level || 1;
-        const speedBonus = (curLevel - 1) * 5.5;
-        const effectiveInterval = Math.max(28, this.shootInterval - speedBonus);
+        const curSet = Math.min(5, Math.ceil(curLevel / 10));
+        const subLvl = ((curLevel - 1) % 10) + 1;
+
+        // Set 1 has a relaxed fire rate (+35% longer interval) for beginner onboarding;
+        // Sets 2~5 progressively tighten the firing cadence
+        const setIntervalScale = [1.35, 1.12, 0.95, 0.82, 0.72][curSet - 1] || 1.0;
+        const subReduction = (subLvl - 1) * (curSet === 1 ? 2.2 : 3.2);
+        const minInterval = [58, 46, 38, 32, 28][curSet - 1] || 28;
+        const effectiveInterval = Math.max(minInterval, Math.round(this.shootInterval * setIntervalScale - subReduction));
 
         this.shootTimer++;
         if (this.shootTimer >= effectiveInterval && this.x < WIDTH - 40 && this.x > 80) {
@@ -4256,24 +4263,29 @@
           sounds.playEnemyShoot();
 
           if (this.type === 'dreadnought') {
-            bullets.push(new Bullet(this.x - this.width / 2, this.y - 8, -7.5, -1, true, this.bulletColor));
-            bullets.push(new Bullet(this.x - this.width / 2, this.y + 8, -7.5, 1, true, this.bulletColor));
-            if (curLevel >= 7) {
-              bullets.push(new Bullet(this.x - this.width / 2, this.y, -8.5, 0, true, this.bulletColor));
+            const dSpd = curSet === 1 ? -6.0 : -7.2 - (curSet - 2) * 0.4;
+            bullets.push(new Bullet(this.x - this.width / 2, this.y - 8, dSpd, -0.9, true, this.bulletColor));
+            bullets.push(new Bullet(this.x - this.width / 2, this.y + 8, dSpd, 0.9, true, this.bulletColor));
+            // 3갈래 탄막은 2세트 중반(15레벨) 이후부터 해금
+            if (curLevel >= 15) {
+              bullets.push(new Bullet(this.x - this.width / 2, this.y, dSpd - 0.8, 0, true, this.bulletColor));
             }
           } else {
             // Calculate angle towards player
             const dx = player.x - this.x;
             const dy = player.y - this.y;
             const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-            const bulletSpeed = 6.5 + Math.min(2.5, (curLevel - 1) * 0.25);
+            // Set 1 starts slower (5.0 ~ 5.6 px/f) and scales up across Sets 2~5 (up to 8.6 px/f)
+            const baseSpd = curSet === 1 ? 5.0 : (5.4 + (curSet - 1) * 0.65);
+            const bulletSpeed = baseSpd + (subLvl - 1) * 0.08;
             const vx = (dx / dist) * bulletSpeed;
             const vy = (dy / dist) * bulletSpeed;
 
             bullets.push(new Bullet(this.x - this.width / 2, this.y, vx, vy, true, this.bulletColor));
 
-            if (curLevel >= 5 && this.type === 'scout') {
-              bullets.push(new Bullet(this.x - this.width / 2, this.y - 6, -7.5, 0, true, this.bulletColor));
+            // 정찰기(Scout) 2연발 사격은 3세트(21레벨) 이후부터 해금 (1~2세트는 단발만 발사)
+            if (curLevel >= 21 && this.type === 'scout') {
+              bullets.push(new Bullet(this.x - this.width / 2, this.y - 6, -(bulletSpeed + 0.6), 0, true, this.bulletColor));
             }
           }
         }
@@ -4509,23 +4521,23 @@
 
         // Multi-phase attack patterns per boss type
         switch (this.type) {
-          case 'giga_cruiser': // Set 1: Azure Overlord
-            if (this.attackTimer % 28 === 0) {
+          case 'giga_cruiser': // Set 1: Azure Overlord (Entry Boss - Accessible difficulty for beginners)
+            if (this.attackTimer % 42 === 0) {
               sounds.playEnemyShoot();
-              bullets.push(new Bullet(this.x - 85, this.y - 35, -8.2, 0, true, this.bulletColor));
-              bullets.push(new Bullet(this.x - 85, this.y + 35, -8.2, 0, true, this.bulletColor));
+              bullets.push(new Bullet(this.x - 85, this.y - 35, -6.8, 0, true, this.bulletColor));
+              bullets.push(new Bullet(this.x - 85, this.y + 35, -6.8, 0, true, this.bulletColor));
             }
-            if (this.attackTimer % 105 === 0) {
+            if (this.attackTimer % 130 === 0) {
               sounds.playEnemyShoot();
-              [-0.32, -0.16, 0, 0.16, 0.32].forEach(ang => {
-                bullets.push(new Bullet(this.x - 70, this.y, Math.cos(Math.PI + ang) * 7.0, Math.sin(Math.PI + ang) * 7.0, true, '#00f0ff'));
+              [-0.24, 0, 0.24].forEach(ang => {
+                bullets.push(new Bullet(this.x - 70, this.y, Math.cos(Math.PI + ang) * 6.0, Math.sin(Math.PI + ang) * 6.0, true, '#00f0ff'));
               });
             }
-            if (isEnraged && this.attackTimer % 60 === 0) {
+            if (isEnraged && this.attackTimer % 85 === 0) {
               const dx = player.x - this.x;
               const dy = player.y - this.y;
               const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-              bullets.push(new Bullet(this.x - 65, this.y, (dx / dist) * 9.2, (dy / dist) * 9.2, true, '#38bdf8'));
+              bullets.push(new Bullet(this.x - 65, this.y, (dx / dist) * 7.2, (dy / dist) * 7.2, true, '#38bdf8'));
             }
             break;
 
@@ -5496,9 +5508,9 @@
       }
 
       maybeSpawnGold(x, y, enemyType) {
-        // 세트(1~5세트)별 적 코인 가치 차등 테이블 (상위 세트로 진출해야 고급 업그레이드 가능)
+        // 세트(1~5세트)별 적 코인 가치 차등 테이블 (1세트 스폰 수 감소에 맞춰 1세트 개당 코인 소폭 보정)
         const setCoinTable = {
-          1: { scout: 2,  hunter: 5,   dread: 10 },
+          1: { scout: 3,  hunter: 7,   dread: 14 },
           2: { scout: 6,  hunter: 15,  dread: 30 },
           3: { scout: 15, hunter: 35,  dread: 70 },
           4: { scout: 35, hunter: 80,  dread: 160 },
@@ -7283,10 +7295,38 @@
 
       spawnEnemy() {
         const rand = Math.random();
+        const curSet = this.getSet ? this.getSet() : 1;
+        let scoutCutoff = 0.50;
+        let hunterCutoff = 0.80;
+
+        if (curSet === 1) {
+          if (this.level <= 3) {
+            // 1세트 초반(Lv.1~3): 중장갑함(Dreadnought) 미등장, 정찰기 위주 입문 구성
+            scoutCutoff = 0.85;
+            hunterCutoff = 1.00;
+          } else {
+            // 1세트 중후반(Lv.4~9): 정찰기 65%, 추격기 25%, 중장갑함 10%
+            scoutCutoff = 0.65;
+            hunterCutoff = 0.90;
+          }
+        } else if (curSet === 2) {
+          scoutCutoff = 0.55;
+          hunterCutoff = 0.85;
+        } else if (curSet === 3) {
+          scoutCutoff = 0.45;
+          hunterCutoff = 0.80;
+        } else if (curSet === 4) {
+          scoutCutoff = 0.38;
+          hunterCutoff = 0.74;
+        } else {
+          scoutCutoff = 0.30;
+          hunterCutoff = 0.70;
+        }
+
         let type = 'scout';
-        if (rand < 0.50) {
+        if (rand < scoutCutoff) {
           type = 'scout';
-        } else if (rand < 0.80) {
+        } else if (rand < hunterCutoff) {
           type = 'hunter';
         } else {
           type = 'dreadnought';
@@ -7719,16 +7759,37 @@
         }
 
         // Enemy spawn logic (Paused during Boss battles & Stage Intermission)
+        // 1세트는 입문 장벽 완화를 위해 스폰 간격을 여유롭게(108~68프레임) 두고, 세트가 올라갈수록 단계적으로 밀도 증가
         if (!bossActive && !isIntermission) {
           this.enemySpawnTimer++;
-          const spawnInterval = Math.max(18, 92 - (this.level % 10) * 7 - (curSet - 1) * 6);
+          const subLvl = ((this.level - 1) % 10) + 1;
+          const baseIntervals = [108, 86, 72, 58, 46];
+          const stepDrops     = [4.8, 4.5, 4.0, 3.5, 3.0];
+          const minIntervals  = [65,  48,  38,  28,  20];
+
+          const setIdx = Math.max(0, Math.min(4, curSet - 1));
+          const spawnInterval = Math.max(
+            minIntervals[setIdx],
+            Math.round(baseIntervals[setIdx] - (subLvl - 1) * stepDrops[setIdx])
+          );
+
           if (this.enemySpawnTimer >= spawnInterval) {
             this.enemySpawnTimer = 0;
             this.spawnEnemy();
-            if ((this.level % 10 >= 4 || curSet >= 2) && Math.random() < (0.25 + curSet * 0.08)) {
+
+            // 2기 동시 스폰 확률: 1세트는 후반(Lv.6~9)에만 18%로 낮게, 2~5세트는 28% -> 58%로 단계적 상승
+            const doubleSpawnChance = curSet === 1
+              ? (subLvl >= 6 ? 0.18 : 0)
+              : (0.18 + curSet * 0.08);
+            if (Math.random() < doubleSpawnChance) {
               this.spawnEnemy();
             }
-            if ((this.level % 10 >= 7 || curSet >= 4) && Math.random() < 0.45) {
+
+            // 3기 동시 편대 스폰: 1~2세트는 미등장, 3세트 후반(Lv.27~)부터 단계적 등장
+            const tripleSpawnChance = curSet <= 2
+              ? 0
+              : (curSet === 3 ? (subLvl >= 7 ? 0.20 : 0) : (curSet === 4 ? 0.32 : 0.45));
+            if (Math.random() < tripleSpawnChance) {
               this.spawnEnemy();
             }
           }
