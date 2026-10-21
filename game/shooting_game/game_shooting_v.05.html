@@ -4327,7 +4327,7 @@
        6. ALIEN UFO (외계인 비행접시 적기)
        ========================================================== */
     class AlienUFO {
-      constructor(x, y, type) {
+      constructor(x, y, type, level = 1) {
         this.x = x;
         this.y = y;
         this.baseY = y;
@@ -4338,13 +4338,20 @@
         this.time = Math.random() * 100;
         this.hitFlashTimer = 0;
 
+        // 세트(1~5세트)별 적기 체력(HP) 단계적 스케일링
+        // 1세트는 입문용으로 낮게 유지하되, 2세트부터는 무기 레벨업을 견디고 화면 안으로 진입하여 교전하도록 체력 강화
+        const curSet = Math.min(5, Math.max(1, Math.ceil((level || 1) / 10)));
+        const scoutHpTable = [1, 2, 3, 4, 6];
+        const hunterHpTable = [1, 3, 5, 7, 9];
+        const dreadHpTable = [4, 7, 10, 14, 18];
+
         if (this.type === 'scout') {
           this.width = 50;
           this.height = 32;
           this.radiusX = 25;
           this.radiusY = 16;
-          this.speed = 3.2;
-          this.hp = 1;
+          this.speed = 3.2 + (curSet - 1) * 0.15;
+          this.hp = scoutHpTable[curSet - 1] || 1;
           this.color = '#ef4444'; // Crimson Red
           this.bulletColor = '#f43f5e';
           this.shootInterval = 110 + Math.random() * 60;
@@ -4353,8 +4360,8 @@
           this.height = 36;
           this.radiusX = 29;
           this.radiusY = 18;
-          this.speed = 4.4;
-          this.hp = 1;
+          this.speed = 4.4 + (curSet - 1) * 0.15;
+          this.hp = hunterHpTable[curSet - 1] || 1;
           this.color = '#f59e0b'; // Amber Gold
           this.bulletColor = '#fbbf24';
           this.shootInterval = 85 + Math.random() * 40;
@@ -4364,8 +4371,8 @@
           this.height = 42;
           this.radiusX = 43;
           this.radiusY = 21;
-          this.speed = 1.8;
-          this.hp = 4;
+          this.speed = 1.8 + (curSet - 1) * 0.10;
+          this.hp = dreadHpTable[curSet - 1] || 4;
           this.color = '#a855f7'; // Neon Violet
           this.bulletColor = '#c084fc';
           this.shootInterval = 75;
@@ -4406,41 +4413,45 @@
         const subLvl = ((curLevel - 1) % 10) + 1;
 
         // Set 1 has a relaxed fire rate (+35% longer interval) for beginner onboarding;
-        // Sets 2~5 progressively tighten the firing cadence
-        const setIntervalScale = [1.35, 1.12, 0.95, 0.82, 0.72][curSet - 1] || 1.0;
-        const subReduction = (subLvl - 1) * (curSet === 1 ? 2.2 : 3.2);
-        const minInterval = [58, 46, 38, 32, 28][curSet - 1] || 28;
+        // Set 2+ steps up noticeably so surviving enemies actively engage the player
+        const setIntervalScale = [1.35, 0.96, 0.86, 0.78, 0.72][curSet - 1] || 1.0;
+        const subReduction = (subLvl - 1) * (curSet === 1 ? 2.2 : 3.0);
+        const minInterval = [58, 42, 36, 32, 28][curSet - 1] || 28;
         const effectiveInterval = Math.max(minInterval, Math.round(this.shootInterval * setIntervalScale - subReduction));
 
         this.shootTimer++;
-        if (this.shootTimer >= effectiveInterval && this.x < WIDTH - 40 && this.x > 80) {
+        if (this.shootTimer >= effectiveInterval && this.x < WIDTH - 30 && this.x > 80) {
           this.shootTimer = 0;
           sounds.playEnemyShoot();
 
           if (this.type === 'dreadnought') {
-            const dSpd = curSet === 1 ? -6.0 : -7.2 - (curSet - 2) * 0.4;
-            bullets.push(new Bullet(this.x - this.width / 2, this.y - 8, dSpd, -0.9, true, this.bulletColor));
-            bullets.push(new Bullet(this.x - this.width / 2, this.y + 8, dSpd, 0.9, true, this.bulletColor));
-            // 3갈래 탄막은 2세트 중반(15레벨) 이후부터 해금
-            if (curLevel >= 15) {
-              bullets.push(new Bullet(this.x - this.width / 2, this.y, dSpd - 0.8, 0, true, this.bulletColor));
+            const dSpd = curSet === 1 ? -6.0 : -6.6 - (curSet - 2) * 0.35;
+            bullets.push(new Bullet(this.x - this.width / 2, this.y - 9, dSpd, -0.85, true, this.bulletColor));
+            bullets.push(new Bullet(this.x - this.width / 2, this.y + 9, dSpd, 0.85, true, this.bulletColor));
+            // 2세트(11레벨)부터 중장갑함 3갈래 탄막 해금
+            if (curSet >= 2) {
+              bullets.push(new Bullet(this.x - this.width / 2, this.y, dSpd - 0.6, 0, true, this.bulletColor));
             }
           } else {
             // Calculate angle towards player
             const dx = player.x - this.x;
             const dy = player.y - this.y;
             const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-            // Set 1 starts slower (5.0 ~ 5.6 px/f) and scales up across Sets 2~5 (up to 8.6 px/f)
-            const baseSpd = curSet === 1 ? 5.0 : (5.4 + (curSet - 1) * 0.65);
-            const bulletSpeed = baseSpd + (subLvl - 1) * 0.08;
+            // 회피 공간 확보를 위해 탄속은 과도하게 빨라지지 않도록 적정 범위(5.0 ~ 7.2) 유지
+            const baseSpd = curSet === 1 ? 5.0 : (5.5 + (curSet - 2) * 0.45);
+            const bulletSpeed = baseSpd + (subLvl - 1) * 0.06;
             const vx = (dx / dist) * bulletSpeed;
             const vy = (dy / dist) * bulletSpeed;
 
             bullets.push(new Bullet(this.x - this.width / 2, this.y, vx, vy, true, this.bulletColor));
 
-            // 정찰기(Scout) 2연발 사격은 3세트(21레벨) 이후부터 해금 (1~2세트는 단발만 발사)
-            if (curLevel >= 21 && this.type === 'scout') {
-              bullets.push(new Bullet(this.x - this.width / 2, this.y - 6, -(bulletSpeed + 0.6), 0, true, this.bulletColor));
+            // 2세트(11레벨)부터 추격기(Hunter) 2연발 해금 (단, 피할 공간 확보를 위해 위아래 간격을 넓게 배치)
+            if (curSet >= 2 && this.type === 'hunter' && subLvl >= 3) {
+              bullets.push(new Bullet(this.x - this.width / 2, this.y - 8, -(bulletSpeed + 0.3), 0, true, this.bulletColor));
+            }
+            // 3세트(21레벨)부터 정찰기(Scout)도 후반 레벨에서 2연발 가세
+            if (curSet >= 3 && this.type === 'scout' && subLvl >= 4) {
+              bullets.push(new Bullet(this.x - this.width / 2, this.y - 6, -(bulletSpeed + 0.4), 0, true, this.bulletColor));
             }
           }
         }
@@ -4696,90 +4707,86 @@
             }
             break;
 
-          case 'inferno_dreadnought': // Set 2: Blaze Behemoth
-            if (this.attackTimer % 40 === 0 || this.attackTimer % 40 === 7 || this.attackTimer % 40 === 14) {
+          case 'inferno_dreadnought': // Set 2: Blaze Behemoth (체력 1400 유지, 미사일 발사량 약 75~80%로 완화 및 회피 통로 확보)
+            if (this.attackTimer % 48 === 0 || this.attackTimer % 48 === 10) {
               sounds.playEnemyShoot();
-              bullets.push(new Bullet(this.x - 90, this.y - 28, -8.8, 0, true, this.bulletColor));
-              bullets.push(new Bullet(this.x - 90, this.y + 28, -8.8, 0, true, this.bulletColor));
+              bullets.push(new Bullet(this.x - 90, this.y - 32, -7.4, 0, true, this.bulletColor));
+              bullets.push(new Bullet(this.x - 90, this.y + 32, -7.4, 0, true, this.bulletColor));
             }
-            if (this.attackTimer % 95 === 0) {
+            if (this.attackTimer % 115 === 0) {
               sounds.playEnemyShoot();
-              [-0.26, 0, 0.26].forEach(ang => {
-                bullets.push(new Bullet(this.x - 70, this.y - 55, Math.cos(Math.PI + ang) * 7.8, Math.sin(Math.PI + ang) * 7.8, true, '#f97316'));
-                bullets.push(new Bullet(this.x - 70, this.y + 55, Math.cos(Math.PI + ang) * 7.8, Math.sin(Math.PI + ang) * 7.8, true, '#f97316'));
+              [-0.30, 0, 0.30].forEach(ang => {
+                bullets.push(new Bullet(this.x - 70, this.y, Math.cos(Math.PI + ang) * 6.8, Math.sin(Math.PI + ang) * 6.8, true, '#f97316'));
+              });
+            }
+            if (isEnraged && this.attackTimer % 90 === 0) {
+              [-0.34, 0, 0.34].forEach(ang => {
+                bullets.push(new Bullet(this.x - 65, this.y, Math.cos(Math.PI + ang) * 7.2, Math.sin(Math.PI + ang) * 7.2, true, '#ff0055'));
+              });
+            }
+            break;
+
+          case 'viper_hive': // Set 3: Toxin Queen (체력 2200 유지, 중앙/상하 회피 공간 확보 및 탄막 밀도 조정)
+            if (this.attackTimer % 68 === 0) {
+              sounds.playEnemyShoot();
+              [-0.36, -0.13, 0.13, 0.36].forEach(ang => {
+                bullets.push(new Bullet(this.x - 75, this.y, Math.cos(Math.PI + ang) * 6.8, Math.sin(Math.PI + ang) * 6.8, true, this.bulletColor));
+              });
+            }
+            if (this.attackTimer % 110 === 0) {
+              sounds.playEnemyShoot();
+              const dx = player.x - this.x;
+              const dy = player.y - this.y;
+              const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+              bullets.push(new Bullet(this.x - 65, this.y - 48, (dx / dist) * 6.5, (dy / dist) * 6.5 - 1.1, true, '#10b981'));
+              bullets.push(new Bullet(this.x - 65, this.y + 48, (dx / dist) * 6.5, (dy / dist) * 6.5 + 1.1, true, '#10b981'));
+            }
+            if (isEnraged && this.attackTimer % 28 === 0) {
+              const sy = Math.sin(this.time * 3.2) * 3.0;
+              bullets.push(new Bullet(this.x - 85, this.y, -7.0, sy, true, '#34d399'));
+            }
+            break;
+
+          case 'solaris_fortress': // Set 4: Aegis Citadel (체력 3200 유지, 원형 탄막 간격 확대 및 직사포 간격 완화)
+            if (this.attackTimer % 85 === 0) {
+              sounds.playEnemyShoot();
+              for (let k = 0; k < 6; k++) {
+                const ang = (k / 6) * Math.PI * 2 + (this.time * 0.55);
+                bullets.push(new Bullet(this.x - 30, this.y, Math.cos(ang) * 6.2, Math.sin(ang) * 6.2, true, this.bulletColor));
+              }
+            }
+            if (this.attackTimer % 100 === 0) {
+              sounds.playEnemyShoot();
+              bullets.push(new Bullet(this.x - 95, this.y - 52, -8.2, 0, true, '#fbbf24'));
+              bullets.push(new Bullet(this.x - 95, this.y + 52, -8.2, 0, true, '#fbbf24'));
+            }
+            if (isEnraged && this.attackTimer % 95 === 0) {
+              for (let k = 0; k < 8; k++) {
+                const ang = (k / 8) * Math.PI * 2;
+                bullets.push(new Bullet(this.x - 30, this.y, Math.cos(ang) * 6.8, Math.sin(ang) * 6.8, true, '#fef08a'));
+              }
+            }
+            break;
+
+          case 'void_titan': // Set 5: Chronos Omega (최종 보스 체력 4500 유지, 나선탄 및 부채꼴 탄막 사이 회피 공간 보장)
+            if (this.attackTimer % 16 === 0) {
+              const spiralAngle = this.time * 2.6;
+              bullets.push(new Bullet(this.x - 75, this.y, Math.cos(spiralAngle) * 6.8, Math.sin(spiralAngle) * 6.8, true, this.bulletColor));
+            }
+            if (this.attackTimer % 90 === 0) {
+              sounds.playEnemyShoot();
+              [-0.42, -0.21, 0, 0.21, 0.42].forEach(ang => {
+                bullets.push(new Bullet(this.x - 75, this.y, Math.cos(Math.PI + ang) * 7.4, Math.sin(Math.PI + ang) * 7.4, true, '#c084fc'));
               });
             }
             if (isEnraged && this.attackTimer % 70 === 0) {
-              [-0.4, -0.2, 0, 0.2, 0.4].forEach(ang => {
-                bullets.push(new Bullet(this.x - 65, this.y, Math.cos(Math.PI + ang) * 8.5, Math.sin(Math.PI + ang) * 8.5, true, '#ff0055'));
-              });
-            }
-            break;
-
-          case 'viper_hive': // Set 3: Toxin Queen
-            if (this.attackTimer % 55 === 0) {
-              sounds.playEnemyShoot();
-              [-0.38, -0.19, 0, 0.19, 0.38].forEach(ang => {
-                bullets.push(new Bullet(this.x - 75, this.y, Math.cos(Math.PI + ang) * 7.4, Math.sin(Math.PI + ang) * 7.4, true, this.bulletColor));
-              });
-            }
-            if (this.attackTimer % 95 === 0) {
               sounds.playEnemyShoot();
               const dx = player.x - this.x;
               const dy = player.y - this.y;
               const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-              bullets.push(new Bullet(this.x - 65, this.y - 45, (dx / dist) * 7.0, (dy / dist) * 7.0 - 1.2, true, '#10b981'));
-              bullets.push(new Bullet(this.x - 65, this.y + 45, (dx / dist) * 7.0, (dy / dist) * 7.0 + 1.2, true, '#10b981'));
-            }
-            if (isEnraged && this.attackTimer % 16 === 0) {
-              const sy = Math.sin(this.time * 3.5) * 3.5;
-              bullets.push(new Bullet(this.x - 85, this.y, -8.2, sy, true, '#34d399'));
-            }
-            break;
-
-          case 'solaris_fortress': // Set 4: Aegis Citadel
-            if (this.attackTimer % 70 === 0) {
-              sounds.playEnemyShoot();
-              for (let k = 0; k < 8; k++) {
-                const ang = (k / 8) * Math.PI * 2 + (this.time * 0.6);
-                bullets.push(new Bullet(this.x - 30, this.y, Math.cos(ang) * 6.8, Math.sin(ang) * 6.8, true, this.bulletColor));
-              }
-            }
-            if (this.attackTimer % 85 === 0) {
-              sounds.playEnemyShoot();
-              bullets.push(new Bullet(this.x - 95, this.y - 55, -9.8, 0, true, '#fbbf24'));
-              bullets.push(new Bullet(this.x - 95, this.y + 55, -9.8, 0, true, '#fbbf24'));
-              bullets.push(new Bullet(this.x - 105, this.y, -10.5, 0, true, '#f59e0b'));
-            }
-            if (isEnraged && this.attackTimer % 75 === 0) {
-              for (let k = 0; k < 12; k++) {
-                const ang = (k / 12) * Math.PI * 2;
-                bullets.push(new Bullet(this.x - 30, this.y, Math.cos(ang) * 7.8, Math.sin(ang) * 7.8, true, '#fef08a'));
-              }
-            }
-            break;
-
-          case 'void_titan': // Set 5: Chronos Omega (Final Boss)
-            if (this.attackTimer % 11 === 0) {
-              const spiralAngle = this.time * 2.8;
-              bullets.push(new Bullet(this.x - 75, this.y, Math.cos(spiralAngle) * 7.5, Math.sin(spiralAngle) * 7.5, true, this.bulletColor));
-            }
-            if (this.attackTimer % 75 === 0) {
-              sounds.playEnemyShoot();
-              [-0.45, -0.3, -0.15, 0, 0.15, 0.3, 0.45].forEach(ang => {
-                bullets.push(new Bullet(this.x - 75, this.y, Math.cos(Math.PI + ang) * 8.2, Math.sin(Math.PI + ang) * 8.2, true, '#c084fc'));
-              });
-            }
-            if (isEnraged && this.attackTimer % 50 === 0) {
-              sounds.playEnemyShoot();
-              const dx = player.x - this.x;
-              const dy = player.y - this.y;
-              const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-              bullets.push(new Bullet(this.x - 75, this.y - 55, (dx / dist) * 9.5, (dy / dist) * 9.5, true, '#e879f9'));
-              bullets.push(new Bullet(this.x - 75, this.y + 55, (dx / dist) * 9.5, (dy / dist) * 9.5, true, '#e879f9'));
-              [-0.2, 0, 0.2].forEach(ang => {
-                bullets.push(new Bullet(this.x - 90, this.y, Math.cos(Math.PI + ang) * 9.8, Math.sin(Math.PI + ang) * 9.8, true, '#f43f5e'));
-              });
+              bullets.push(new Bullet(this.x - 75, this.y - 55, (dx / dist) * 8.0, (dy / dist) * 8.0, true, '#e879f9'));
+              bullets.push(new Bullet(this.x - 75, this.y + 55, (dx / dist) * 8.0, (dy / dist) * 8.0, true, '#e879f9'));
+              bullets.push(new Bullet(this.x - 90, this.y, -8.4, 0, true, '#f43f5e'));
             }
             break;
         }
@@ -7636,7 +7643,7 @@
         }
 
         const y = Math.random() * (HEIGHT - 120) + 60;
-        this.enemies.push(new AlienUFO(WIDTH + 30, y, type));
+        this.enemies.push(new AlienUFO(WIDTH + 30, y, type, this.level));
       }
 
       maybeSpawnCapsule(x, y, enemyType) {
@@ -8062,13 +8069,13 @@
         }
 
         // Enemy spawn logic (Paused during Boss battles & Stage Intermission)
-        // 1세트는 입문 장벽 완화를 위해 스폰 간격을 여유롭게(108~68프레임) 두고, 세트가 올라갈수록 단계적으로 밀도 증가
+        // 1세트는 입문 장벽 완화를 위해 스폰 간격을 여유롭게(108~65프레임) 두고, 2세트부터는 상승한 무기 화력에 맞춰 출현 밀도를 확실히 높임
         if (!bossActive && !isIntermission) {
           this.enemySpawnTimer++;
           const subLvl = ((this.level - 1) % 10) + 1;
-          const baseIntervals = [108, 86, 72, 58, 46];
-          const stepDrops     = [4.8, 4.5, 4.0, 3.5, 3.0];
-          const minIntervals  = [65,  48,  38,  28,  20];
+          const baseIntervals = [108, 72, 62, 54, 46];
+          const stepDrops     = [4.8, 3.8, 3.5, 3.2, 2.8];
+          const minIntervals  = [65,  42,  34,  28,  22];
 
           const setIdx = Math.max(0, Math.min(4, curSet - 1));
           const spawnInterval = Math.max(
@@ -8080,18 +8087,18 @@
             this.enemySpawnTimer = 0;
             this.spawnEnemy();
 
-            // 2기 동시 스폰 확률: 1세트는 후반(Lv.6~9)에만 18%로 낮게, 2~5세트는 28% -> 58%로 단계적 상승
+            // 2기 동시 스폰 확률: 1세트는 후반(Lv.6~9)에만 18%로 낮게, 2~5세트는 38% -> 62%로 단계적 상승
             const doubleSpawnChance = curSet === 1
               ? (subLvl >= 6 ? 0.18 : 0)
-              : (0.18 + curSet * 0.08);
+              : (0.22 + curSet * 0.08);
             if (Math.random() < doubleSpawnChance) {
               this.spawnEnemy();
             }
 
-            // 3기 동시 편대 스폰: 1~2세트는 미등장, 3세트 후반(Lv.27~)부터 단계적 등장
-            const tripleSpawnChance = curSet <= 2
+            // 3기 동시 편대 스폰: 1세트는 미등장, 2세트 중반(Lv.15~)부터 단계적 등장
+            const tripleSpawnChance = curSet === 1
               ? 0
-              : (curSet === 3 ? (subLvl >= 7 ? 0.20 : 0) : (curSet === 4 ? 0.32 : 0.45));
+              : (curSet === 2 ? (subLvl >= 5 ? 0.16 : 0) : (curSet === 3 ? 0.24 : (curSet === 4 ? 0.32 : 0.42)));
             if (Math.random() < tripleSpawnChance) {
               this.spawnEnemy();
             }
