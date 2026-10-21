@@ -705,6 +705,102 @@
       margin-top: 4px;
     }
 
+    /* Sector (Set 1~5) Checkpoint Selector Panel */
+    .set-selector-panel {
+      background: rgba(15, 23, 42, 0.88);
+      border: 1.5px solid rgba(56, 189, 248, 0.4);
+      border-radius: 14px;
+      padding: 10px 16px;
+      margin-bottom: 14px;
+      max-width: 620px;
+      width: 96%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 0 22px rgba(0, 240, 255, 0.15);
+      backdrop-filter: blur(8px);
+    }
+    .set-selector-header {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: #cbd5e1;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .set-pills-row {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .set-pill-btn {
+      flex: 1;
+      min-width: 82px;
+      padding: 7px 8px;
+      border-radius: 9px;
+      border: 1.5px solid rgba(71, 85, 105, 0.6);
+      background: rgba(30, 41, 59, 0.75);
+      color: #94a3b8;
+      font-size: 11.5px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      transition: all 0.16s ease;
+      outline: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .set-pill-btn .set-pill-sub {
+      font-size: 9.5px;
+      font-weight: 700;
+      opacity: 0.85;
+      font-family: monospace;
+    }
+    .set-pill-btn.unlocked {
+      border-color: rgba(56, 189, 248, 0.45);
+      background: rgba(15, 23, 42, 0.9);
+      color: #e2e8f0;
+    }
+    .set-pill-btn.unlocked:hover {
+      border-color: #00f0ff;
+      transform: translateY(-1px);
+    }
+    .set-pill-btn.cleared {
+      border-color: rgba(16, 185, 129, 0.5);
+      color: #6ee7b7;
+    }
+    .set-pill-btn.selected {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.45) 0%, rgba(168, 85, 247, 0.35) 100%);
+      border: 2px solid #00f0ff;
+      color: #ffffff;
+      box-shadow: 0 0 16px rgba(0, 240, 255, 0.55);
+      transform: scale(1.03);
+    }
+    .set-pill-btn.selected .set-pill-sub {
+      color: #fde047;
+      opacity: 1;
+    }
+    .set-pill-btn.locked {
+      opacity: 0.42;
+      cursor: not-allowed;
+      background: rgba(15, 23, 42, 0.5);
+      border-color: rgba(51, 65, 85, 0.4);
+      color: #64748b;
+    }
+    .set-selector-desc {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #38bdf8;
+      text-align: center;
+    }
+
     .top-controls {
       position: absolute;
       top: 12px;
@@ -886,11 +982,50 @@
         margin-bottom: 2px;
         letter-spacing: 1.5px;
       }
+      .gameover-title {
+        font-size: 30px;
+        margin-bottom: 4px;
+        letter-spacing: 2px;
+      }
       .subtitle {
         font-size: 11.5px;
         margin-bottom: 8px;
         line-height: 1.35;
         padding: 0 4px;
+      }
+      .stat-row {
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .stat-box {
+        padding: 6px 12px;
+        min-width: 88px;
+      }
+      .stat-box .val {
+        font-size: 20px;
+      }
+      .stat-box .lbl {
+        font-size: 10px;
+        margin-top: 2px;
+      }
+      .set-selector-panel {
+        padding: 7px 10px;
+        margin-bottom: 9px;
+        gap: 5px;
+      }
+      .set-selector-header {
+        font-size: 10.5px;
+      }
+      .set-pill-btn {
+        min-width: 68px;
+        padding: 5px 6px;
+        font-size: 10.5px;
+      }
+      .set-pill-btn .set-pill-sub {
+        font-size: 8.5px;
+      }
+      .set-selector-desc {
+        font-size: 10.5px;
       }
       .title-hero-emblem {
         width: 68px !important;
@@ -1268,9 +1403,19 @@
         </div>
       </div>
 
-      <p class="level-tip" style="font-size: 12px; color: #fbbf24; margin-bottom: 14px; font-weight: bold; text-align: center;">
+      <p class="level-tip" style="font-size: 12px; color: #fbbf24; margin-bottom: 10px; font-weight: bold; text-align: center;">
         ⭐ 각 구역 10레벨마다 거대 보스 출현! 우측 상단 [⏸️ 정지] 버튼으로 언제든 휴식 및 기체 정비 가능
       </p>
+
+      <!-- Sector Checkpoint Selector on Guide Screen -->
+      <div class="set-selector-panel" id="guide-set-selector">
+        <div class="set-selector-header">
+          <span>🌌 출격 구역(SET) 선택</span>
+          <span style="font-size: 10px; color: #94a3b8; font-weight: 600;">(클리어한 구역 및 현재 구역 자유 선택)</span>
+        </div>
+        <div class="set-pills-row" id="guide-set-pills"></div>
+        <div class="set-selector-desc" id="guide-set-desc">SET 1: 네온 사이안 성운 (Lv.1~10)</div>
+      </div>
 
       <div style="display: flex; gap: 10px; width: 100%; max-width: 480px; justify-content: center; flex-wrap: nowrap;">
         <button id="start-btn" class="btn" style="flex: 2; white-space: nowrap; animation: startBtnPulse 2s infinite;">⚡ 출격 개시 (MISSION START)</button>
@@ -1281,7 +1426,7 @@
     <!-- Game Over Overlay -->
     <div id="gameover-screen" class="screen-overlay hidden">
       <h1 class="gameover-title">GAME OVER</h1>
-      <p class="subtitle">모든 생명을 소진하여 전투기가 파괴되었습니다!</p>
+      <p class="subtitle" id="gameover-subtitle">모든 생명을 소진하여 전투기가 파괴되었습니다!</p>
 
       <div class="stat-row">
         <div class="stat-box">
@@ -1300,6 +1445,16 @@
           <div class="val" id="final-best">0</div>
           <div class="lbl">최고 기록 (BEST)</div>
         </div>
+      </div>
+
+      <!-- Sector Checkpoint Selector on Game Over Screen -->
+      <div class="set-selector-panel" id="gameover-set-selector">
+        <div class="set-selector-header">
+          <span>🌌 재출격 구역(SET) 체크포인트 선택</span>
+          <span style="font-size: 10px; color: #94a3b8; font-weight: 600;">(현재 세트부터 이어하기 또는 이전 세트 선택)</span>
+        </div>
+        <div class="set-pills-row" id="gameover-set-pills"></div>
+        <div class="set-selector-desc" id="gameover-set-desc">SET 1: 네온 사이안 성운 (Lv.1 출격)</div>
       </div>
 
       <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
@@ -5260,8 +5415,109 @@
         this.updateGoldHUD();
         this.updateBombHUD();
 
+        this.selectedStartSet = this.getUnlockedSet();
+        this.renderSetSelectors();
+
         this.bindEvents();
         this.startTitleOpeningAnimation();
+      }
+
+      getUnlockedSet() {
+        const maxLvl = Math.max(this.level || 1, (this.stats && this.stats.maxLevelReached) || 1);
+        return Math.min(5, Math.max(1, Math.ceil(maxLvl / 10)));
+      }
+
+      renderSetSelectors() {
+        const unlockedSet = this.getUnlockedSet();
+        if (!this.selectedStartSet || this.selectedStartSet > unlockedSet || this.selectedStartSet < 1) {
+          this.selectedStartSet = unlockedSet;
+        }
+        const selSet = this.selectedStartSet;
+        const startLvl = (selSet - 1) * 10 + 1;
+        const endLvl = selSet * 10;
+        const startWpn = selSet === 1 ? 1 : (selSet === 2 ? 2 : 3);
+        const wpnLabel = startWpn === 1 ? 'LV.1 DUAL' : (startWpn === 2 ? 'LV.2 TRIPLE' : 'LV.3 HYPER+MISSILE');
+        const setCfg = SET_CONFIGS[selSet] || SET_CONFIGS[1];
+
+        const buildPills = (containerId) => {
+          const container = document.getElementById(containerId);
+          if (!container) return;
+          container.innerHTML = '';
+
+          for (let s = 1; s <= 5; s++) {
+            const isUnlocked = s <= unlockedSet;
+            const isCleared = (s < unlockedSet) || (s === 5 && ((this.stats && this.stats.maxLevelReached >= 50 && this.stats.bossesDefeated >= 5)));
+            const isSelected = s === selSet;
+            const sLvlStart = (s - 1) * 10 + 1;
+            const sLvlEnd = s * 10;
+
+            const btn = document.createElement('button');
+            let cls = 'set-pill-btn';
+            if (!isUnlocked) cls += ' locked';
+            else {
+              cls += ' unlocked';
+              if (isCleared) cls += ' cleared';
+              if (isSelected) cls += ' selected';
+            }
+            btn.className = cls;
+            btn.disabled = !isUnlocked;
+
+            let badgeIcon = '🔒';
+            let subStatus = `Lv.${sLvlStart}~${sLvlEnd}`;
+            if (isUnlocked) {
+              if (isCleared) {
+                badgeIcon = '✅';
+                subStatus = `Lv.${sLvlStart} (완료)`;
+              } else {
+                badgeIcon = '🔥';
+                subStatus = `Lv.${sLvlStart} (진행중)`;
+              }
+            }
+
+            btn.innerHTML = `
+              <span>${badgeIcon} SET ${s}</span>
+              <span class="set-pill-sub">${subStatus}</span>
+            `;
+
+            if (isUnlocked) {
+              const selectHandler = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.selectedStartSet = s;
+                sounds.init();
+                sounds.playCoin();
+                this.renderSetSelectors();
+              };
+              btn.addEventListener('click', selectHandler);
+              btn.addEventListener('touchend', selectHandler, { passive: false });
+            }
+
+            container.appendChild(btn);
+          }
+        };
+
+        buildPills('guide-set-pills');
+        buildPills('gameover-set-pills');
+
+        const descStr = `🚀 출격 지점: ${setCfg.name} (Lv.${startLvl}~${endLvl}) • 기본 화력 [${wpnLabel}] 지원`;
+        const guideDesc = document.getElementById('guide-set-desc');
+        if (guideDesc) guideDesc.textContent = descStr;
+        const gameoverDesc = document.getElementById('gameover-set-desc');
+        if (gameoverDesc) gameoverDesc.textContent = descStr;
+
+        const startBtn = document.getElementById('start-btn');
+        if (startBtn) {
+          startBtn.textContent = selSet === 1
+            ? `⚡ SET 1 (Lv.1) 출격 개시`
+            : `⚡ SET ${selSet} (Lv.${startLvl}) 출격 개시`;
+        }
+
+        const restartBtn = document.getElementById('restart-btn');
+        if (restartBtn) {
+          restartBtn.textContent = selSet === 1
+            ? `🔄 SET 1 (Lv.1) 처음부터 출격`
+            : `🔄 SET ${selSet} (Lv.${startLvl})부터 재출격`;
+        }
       }
 
       getLevelDurationSec(lvl) {
@@ -5381,8 +5637,11 @@
         };
         this.achievements = {};
         this.highScore = 0;
+        this.level = 1;
+        this.selectedStartSet = 1;
         this.saveGameData();
         this.renderHangarUI();
+        this.renderSetSelectors();
         this.updateGoldHUD();
         if (this.hudHighScore) this.hudHighScore.textContent = '00000';
       }
@@ -5847,6 +6106,8 @@
           sounds.startBGM('title');
         }
         this.requestMobileFullscreen();
+        this.selectedStartSet = this.getUnlockedSet();
+        this.renderSetSelectors();
         if (this.startScreen) this.startScreen.classList.add('hidden');
         if (this.guideScreen) this.guideScreen.classList.remove('hidden');
       }
@@ -6172,6 +6433,10 @@
           if (this.pauseHyper) {
             this.pauseHyper.textContent = `${Math.round(this.hyperGauge)}%`;
           }
+          const restartPauseBtn = document.getElementById('restart-from-pause-btn');
+          if (restartPauseBtn) {
+            restartPauseBtn.textContent = `🔄 현재 구역(SET ${curSet}) 처음부터`;
+          }
           this.pauseScreen.classList.remove('hidden');
         }
       }
@@ -6401,6 +6666,12 @@
           if (this.level >= this.maxLevel) {
             this.victory();
           } else {
+            // 보스 격파 즉시 다음 세트(curSet + 1) 해금 영구 저장!
+            const nextLevelUnlocked = curSet * 10 + 1;
+            this.stats.maxLevelReached = Math.max(this.stats.maxLevelReached || 1, nextLevelUnlocked);
+            this.selectedStartSet = Math.min(5, curSet + 1);
+            this.saveGameData();
+
             // 보스 격파 후 3.5초간 전진 기지 도킹 워프 가동!
             this.stageIntermission = {
               active: true,
@@ -6596,10 +6867,17 @@
         }
       }
 
-      start() {
+      start(targetSet) {
+        const unlockedSet = this.getUnlockedSet();
+        const chosenSet = (typeof targetSet === 'number' && targetSet >= 1)
+          ? Math.min(unlockedSet, Math.max(1, targetSet))
+          : Math.min(unlockedSet, Math.max(1, this.selectedStartSet || unlockedSet));
+        this.selectedStartSet = chosenSet;
+        const startLevel = (chosenSet - 1) * 10 + 1;
+
         try {
           sounds.init();
-          sounds.startBGM('set' + this.getSet());
+          sounds.startBGM('set' + chosenSet);
         } catch (e) {
           console.warn("Audio init deferred:", e);
         }
@@ -6623,8 +6901,8 @@
         this.accumulator = 0;
         this.score = 0;
         this.enemiesDestroyed = 0;
-        this.level = 1;
-        this.levelDuration = this.getLevelDurationSec(1) * 60; // 10.0초
+        this.level = startLevel;
+        this.levelDuration = this.getLevelDurationSec(startLevel) * 60; // 10.0초
         this.levelTimer = 0;
         this.levelUpBannerTimer = 0;
         this.gameStartTime = performance.now();
@@ -6632,6 +6910,22 @@
         this.currentBoss = null;
         this.updateBossHUD();
         this.player.reset(this);
+
+        // 상위 세트(SET 2~5) 체크포인트 출격 시 기본 무기 레벨 지원 (Set 2: Lv.2, Set 3~5: Lv.3)
+        if (chosenSet === 2) {
+          this.player.weaponLevel = 2;
+        } else if (chosenSet >= 3) {
+          this.player.weaponLevel = 3;
+        } else {
+          this.player.weaponLevel = 1;
+        }
+
+        if (chosenSet > 1) {
+          this.levelUpBannerTimer = 130;
+          this.levelUpBannerText = `⚡ SET ${chosenSet} 체크포인트 출격! ⚡`;
+          this.levelUpBannerSub = `[${SET_CONFIGS[chosenSet] ? SET_CONFIGS[chosenSet].name : ('SET ' + chosenSet)}] Lv.${startLevel} 개시 • 기본 무기 LV.${this.player.weaponLevel} 장착!`;
+        }
+
         this.bullets = [];
         this.enemies = [];
         this.particles = [];
@@ -7001,8 +7295,17 @@
           this.hudHighScore.textContent = String(this.highScore).padStart(5, '0');
         }
         this.stats.highScore = Math.max(this.highScore, this.score);
+        this.stats.maxLevelReached = Math.max(this.stats.maxLevelReached || 1, this.level);
+        const curSet = this.getSet();
+        this.selectedStartSet = curSet;
         this.checkAchievements();
         this.saveGameData();
+        this.renderSetSelectors();
+
+        const goSub = document.getElementById('gameover-subtitle');
+        if (goSub) {
+          goSub.textContent = `SET ${curSet} (Lv.${this.level}) 작전 중 전사! 현재 세트(SET ${curSet})부터 바로 재도전하거나 이전 세트를 선택하세요.`;
+        }
 
         this.finalScore.textContent = this.score;
         this.finalDestroyed.textContent = this.enemiesDestroyed;
@@ -7288,7 +7591,7 @@
         if (restartFromPauseBtn) {
           restartFromPauseBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            this.start();
+            this.start(this.getSet());
           });
         }
       }
