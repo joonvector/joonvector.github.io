@@ -74,48 +74,57 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 60px;
+      height: 40px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 25px;
+      padding: 0 16px;
       pointer-events: none;
       z-index: 10;
-      background: linear-gradient(to bottom, rgba(5, 7, 17, 0.9), transparent);
+      background: linear-gradient(to bottom, rgba(5, 7, 17, 0.94) 0%, rgba(5, 7, 17, 0.6) 75%, transparent 100%);
+      white-space: nowrap;
+      flex-wrap: nowrap;
+      box-sizing: border-box;
     }
 
     .hud-section {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
     }
 
     .hud-label {
       font-size: 11px;
       text-transform: uppercase;
-      letter-spacing: 2px;
+      letter-spacing: 1px;
       color: #38bdf8;
-      font-weight: 700;
+      font-weight: 800;
+      line-height: 1;
     }
 
     .hud-value {
-      font-size: 24px;
+      font-size: 18px;
       font-weight: 800;
       color: #ffffff;
       font-family: 'Courier New', Consolas, monospace;
       text-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+      line-height: 1;
     }
 
     .lives-container {
       display: flex;
-      gap: 6px;
-      margin-top: 2px;
+      gap: 4px;
+      align-items: center;
     }
 
     .heart-icon {
-      font-size: 22px;
+      font-size: 18px;
       color: #ff0055;
       filter: drop-shadow(0 0 6px rgba(255, 0, 85, 0.9));
       transition: transform 0.2s;
+      line-height: 1;
     }
 
     .heart-icon.lost {
@@ -148,6 +157,13 @@
       padding: 18px 16px 40px 16px !important;
     }
 
+    #gameover-screen {
+      justify-content: flex-start !important;
+      padding: 22px 16px 40px 16px !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+
     .screen-overlay.hidden {
       display: none;
     }
@@ -165,14 +181,15 @@
     }
 
     .gameover-title {
-      font-size: 52px;
+      font-size: 38px;
       font-weight: 900;
-      letter-spacing: 4px;
+      letter-spacing: 3px;
       background: linear-gradient(135deg, #ff0055 0%, #ff5500 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      margin-bottom: 12px;
-      text-shadow: 0 0 40px rgba(255, 0, 85, 0.8);
+      margin-top: 4px;
+      margin-bottom: 6px;
+      text-shadow: 0 0 35px rgba(255, 0, 85, 0.8);
     }
 
     .subtitle {
@@ -1199,18 +1216,21 @@
         font-size: 10px;
       }
       #hud {
-        padding: 0 12px;
-        height: 46px;
+        padding: 0 8px;
+        height: 32px;
+      }
+      .hud-section {
+        gap: 3px;
       }
       .hud-label {
         font-size: 8px;
-        letter-spacing: 1px;
+        letter-spacing: 0.5px;
       }
       .hud-value {
-        font-size: 16px;
+        font-size: 13px;
       }
       .heart-icon {
-        font-size: 16px;
+        font-size: 14px;
       }
       .top-controls {
         top: 8px;
@@ -1332,57 +1352,51 @@
       <button id="sound-btn" class="top-btn" aria-label="Toggle Sound">🔊 Sound: ON</button>
     </div>
 
-    <!-- HUD -->
+    <!-- HUD (Single Sleek Row) -->
     <div id="hud">
       <div class="hud-section">
         <span class="hud-label">SCORE</span>
         <span class="hud-value" id="hud-score">00000</span>
       </div>
 
-      <div class="hud-section" style="align-items: center;">
-        <span class="hud-label">MISSION LEVEL</span>
-        <div style="display: flex; align-items: baseline; gap: 6px;">
-          <span id="hud-level" style="color: #fbbf24; font-size: 12px; font-weight: 800; font-family: 'Segoe UI', -apple-system, sans-serif; letter-spacing: 0.5px;">1/10 (Set1)</span>
-          <span style="font-size: 11px; color: #38bdf8; font-weight: 700; font-family: 'Segoe UI', -apple-system, sans-serif;" id="hud-level-timer">(10.0s)</span>
+      <div class="hud-section">
+        <span class="hud-label">LV</span>
+        <span id="hud-level" style="color: #fbbf24; font-size: 12.5px; font-weight: 800; font-family: 'Segoe UI', -apple-system, sans-serif; letter-spacing: 0.5px;">1/10 (Set1)</span>
+        <span style="font-size: 11px; color: #38bdf8; font-weight: 700; font-family: 'Segoe UI', -apple-system, sans-serif;" id="hud-level-timer">(10.0s)</span>
+      </div>
+
+      <div class="hud-section" style="gap: 8px;">
+        <div class="lives-container" id="lives-container">
+          <span class="heart-icon" id="heart-1">♥</span>
+          <span class="heart-icon" id="heart-2">♥</span>
+          <span class="heart-icon" id="heart-3">♥</span>
+          <span class="heart-icon hidden" id="heart-4" style="color: #fbbf24; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9));">♥</span>
+        </div>
+        <div style="font-size: 12px; font-weight: 800; color: #facc15; font-family: monospace; letter-spacing: 0.5px;" id="hud-bomb-indicator">
+          💣 x2
+        </div>
+        <div style="font-size: 10.5px; font-weight: 900; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.45); padding: 1px 6px; border-radius: 5px; letter-spacing: 0.5px;" id="hud-weapon-badge">
+          ⚡ LV.1 DUAL
+        </div>
+        <!-- EX HYPER GAUGE HUD -->
+        <div style="display: flex; align-items: center; gap: 4px; background: rgba(15, 23, 42, 0.7); padding: 1px 5px; border-radius: 5px; border: 1px solid rgba(0, 240, 255, 0.35);" title="EX Hyper Beam Gauge">
+          <span style="font-size: 9.5px; font-weight: 900; color: #00f0ff; letter-spacing: 0.5px;">EX</span>
+          <div style="width: 42px; height: 6px; background: rgba(15, 23, 42, 0.9); border: 1px solid #00f0ff; border-radius: 3px; overflow: hidden;">
+            <div id="hud-hyper-bar" style="width: 25%; height: 100%; background: linear-gradient(90deg, #00f0ff, #a855f7); transition: width 0.1s ease;"></div>
+          </div>
+          <span id="hud-hyper-text" style="font-size: 9.5px; font-weight: 800; color: #00f0ff; font-family: monospace;">25%</span>
         </div>
       </div>
 
-      <div class="hud-section" style="align-items: center;">
-        <span class="hud-label">SHIELD & LIVES</span>
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div class="lives-container" id="lives-container">
-            <span class="heart-icon" id="heart-1">♥</span>
-            <span class="heart-icon" id="heart-2">♥</span>
-            <span class="heart-icon" id="heart-3">♥</span>
-            <span class="heart-icon hidden" id="heart-4" style="color: #fbbf24; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9));">♥</span>
-          </div>
-          <span id="hud-vip-badge" class="hidden" style="font-size: 9.5px; font-weight: 900; color: #050711; background: linear-gradient(135deg, #fbbf24, #f59e0b); padding: 1px 5px; border-radius: 4px; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6); letter-spacing: 0.5px;">👑 VIP</span>
-          <div style="font-size: 13px; font-weight: 800; color: #facc15; font-family: monospace; letter-spacing: 1px;" id="hud-bomb-indicator">
-            💣 x2
-          </div>
-          <div style="font-size: 11px; font-weight: 900; color: #38bdf8; background: rgba(56, 189, 248, 0.15); border: 1px solid rgba(56, 189, 248, 0.45); padding: 2px 7px; border-radius: 6px; letter-spacing: 0.5px; transition: all 0.3s ease;" id="hud-weapon-badge">
-            ⚡ LV.1 DUAL
-          </div>
-          <!-- EX HYPER GAUGE HUD -->
-          <div style="display: flex; align-items: center; gap: 4px; background: rgba(15, 23, 42, 0.7); padding: 2px 6px; border-radius: 6px; border: 1px solid rgba(0, 240, 255, 0.35);" title="EX Hyper Beam Gauge">
-            <span style="font-size: 10px; font-weight: 900; color: #00f0ff; letter-spacing: 0.5px;">EX</span>
-            <div style="width: 48px; height: 7px; background: rgba(15, 23, 42, 0.9); border: 1px solid #00f0ff; border-radius: 4px; overflow: hidden;">
-              <div id="hud-hyper-bar" style="width: 25%; height: 100%; background: linear-gradient(90deg, #00f0ff, #a855f7); transition: width 0.1s ease;"></div>
-            </div>
-            <span id="hud-hyper-text" style="font-size: 10px; font-weight: 800; color: #00f0ff; font-family: monospace;">25%</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="hud-section" style="align-items: flex-end;">
+      <div class="hud-section">
         <span class="hud-label">GOLD</span>
-        <span class="hud-value" id="hud-gold" style="color: #fde047; font-size: 19px; text-shadow: 0 0 10px rgba(251, 191, 36, 0.7); display: flex; align-items: center; gap: 4px;">
+        <span class="hud-value" id="hud-gold" style="color: #fde047; font-size: 16px; text-shadow: 0 0 10px rgba(251, 191, 36, 0.7); display: flex; align-items: center; gap: 3px;">
           <span>🪙</span> <span id="hud-gold-num">0</span>
         </span>
       </div>
 
-      <div class="hud-section" style="align-items: flex-end;">
-        <span class="hud-label">HIGH SCORE</span>
+      <div class="hud-section">
+        <span class="hud-label">HI</span>
         <span class="hud-value" id="hud-highscore">00000</span>
       </div>
     </div>
@@ -1571,8 +1585,14 @@
         <div class="set-selector-desc" id="gameover-set-desc">SET 1: 네온 사이안 성운 (Lv.1 출격)</div>
       </div>
 
-      <!-- Emergency Rescue Pack Banner (Triggered only on Set 2+ Death) -->
-      <div id="gameover-emergency-rescue" class="hidden" style="width: 100%; max-width: 520px; background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(69, 10, 10, 0.95) 100%); border: 2px solid #f59e0b; border-radius: 14px; padding: 12px 16px; margin: 6px 0 14px 0; box-shadow: 0 0 28px rgba(245, 158, 11, 0.4); text-align: left; position: relative;">
+      <!-- Action Buttons (Positioned directly under checkpoint selector) -->
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 12px;">
+        <button id="restart-btn" class="btn">🔄 다시 출격 (RETRY)</button>
+        <button id="hangar-btn-gameover" class="btn btn-hangar" style="font-size: 15px; padding: 11px 28px;">🚀 격납고 (HANGAR)</button>
+      </div>
+
+      <!-- Emergency Rescue Pack Banner (Triggered strictly only on Set 2+ Death, below buttons) -->
+      <div id="gameover-emergency-rescue" class="hidden" style="width: 100%; max-width: 520px; background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(69, 10, 10, 0.95) 100%); border: 2px solid #f59e0b; border-radius: 14px; padding: 12px 16px; margin: 4px 0 16px 0; box-shadow: 0 0 28px rgba(245, 158, 11, 0.4); text-align: left; position: relative;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 5px;">
           <div style="display: flex; align-items: center; gap: 7px;">
             <span style="font-size: 18px; animation: pulse 1s infinite;">🚨</span>
@@ -1583,7 +1603,7 @@
         <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 8px; line-height: 1.4;">
           상위 구역 외계 함대의 저항이 격렬합니다! 긴급 지원금을 수령하여 화력과 쉴드를 즉시 풀강하세요!
         </p>
-        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; margin-bottom: 4px;">
           <div style="font-size: 13px; font-weight: 900; color: #fde047; font-family: monospace;">
             💰 15,000 G 즉시 수령 <span style="font-size: 11px; color: #38bdf8;">(2~3단계 업그레이드 완충)</span>
           </div>
@@ -1591,11 +1611,6 @@
             ⚡ 1,900원 보급 받기
           </button>
         </div>
-      </div>
-
-      <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
-        <button id="restart-btn" class="btn">🔄 다시 도전 (RETRY)</button>
-        <button id="hangar-btn-gameover" class="btn btn-hangar" style="font-size: 15px; padding: 11px 28px;">🚀 격납고 (HANGAR)</button>
       </div>
     </div>
 
@@ -6670,48 +6685,10 @@
         if (!this.hangarShopContainer) return;
         this.hangarShopContainer.innerHTML = '';
 
-        // 1. VIP Hero Card
-        const vipCard = document.createElement('div');
-        vipCard.className = 'vip-hero-card';
         const isVip = !!this.isVipUser;
+        const unlockedSet = this.getUnlockedSet();
 
-        vipCard.innerHTML = `
-          <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 26px;">👑</span>
-              <div>
-                <div style="font-size: 17px; font-weight: 900; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.7);">에이스 파일럿 VIP 패키지 (ACE PILOT VIP)</div>
-                <div style="font-size: 11px; color: #fde68a;">영구 특권 올인원 • 모든 강제 광고 제거 • 평생 편안한 우주 전투</div>
-              </div>
-            </div>
-            <span style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #050711; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 8px; box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);">
-              ${isVip ? '✅ VIP 활성화됨' : '3,900원 / $2.99'}
-            </span>
-          </div>
-
-          <div class="vip-perks-grid">
-            <div class="vip-perk-chip">🛡️ <strong>영구 출격 라이프 4기</strong> (기본 3대 ➔ 4대 확장)</div>
-            <div class="vip-perk-chip">🧲 <strong>전 화면 골드 자동 자석 흡수</strong> (Coin Magnet)</div>
-            <div class="vip-perk-chip">🚫 <strong>모든 전면/강제 광고 영구 제거</strong> (No-Ads)</div>
-            <div class="vip-perk-chip">⚡ <strong>비상 부활 / 골드 2배 광고 없이 즉시 프리패스</strong></div>
-            <div class="vip-perk-chip">🎁 <strong>개척 지원금 +5,000 G</strong> (구매 시 즉시 지급)</div>
-          </div>
-
-          <div style="display: flex; justify-content: flex-end; position: relative; z-index: 2; margin-top: 4px;">
-            ${isVip ? `
-              <button class="btn" disabled style="background: rgba(34, 197, 94, 0.2); border: 1.5px solid #22c55e; color: #22c55e; cursor: default; font-size: 14px; padding: 10px 24px; box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);">
-                ✅ VIP 특권이 영구 활성화되어 있습니다
-              </button>
-            ` : `
-              <button id="btn-buy-vip" class="btn" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%); color: #050711; font-weight: 900; font-size: 15px; padding: 11px 28px; box-shadow: 0 0 25px rgba(251, 191, 36, 0.8);">
-                👑 3,900원에 VIP 특권 영구 획득
-              </button>
-            `}
-          </div>
-        `;
-        this.hangarShopContainer.appendChild(vipCard);
-
-        // 2. Daily Ad Reward Banner
+        // 1. Daily Free Emergency Supply Banner (사령부 일일 비상 자금 보급소) - Placed at TOP!
         const todayStr = new Date().toISOString().slice(0, 10);
         if (this.lastAdSupplyDate !== todayStr) {
           this.dailyAdSupplies = 0;
@@ -6738,81 +6715,63 @@
         `;
         this.hangarShopContainer.appendChild(dailyBanner);
 
-        // 3. Gold Depot Section
-        const goldSectionTitle = document.createElement('div');
-        goldSectionTitle.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-top: 6px;';
-        goldSectionTitle.innerHTML = `
-          <div style="font-size: 15px; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
-            <span>💎</span> 골드 보급고 (GOLD DEPOT)
-          </div>
-          <span style="font-size: 11px; color: #94a3b8;">정가 판매 • 상위 세트 돌파용 대량 자금</span>
-        `;
-        this.hangarShopContainer.appendChild(goldSectionTitle);
-
-        const goldGrid = document.createElement('div');
-        goldGrid.className = 'gold-depot-grid';
-
-        const goldPacks = [
-          {
-            id: 'medium',
-            name: '중형 보급 컨테이너',
-            gold: 23000,
-            baseGold: '20,000 G',
-            bonus: '+15% 보너스',
-            price: '4,900원',
-            desc: 'Set 2~3 돌파용 3단계 업그레이드 전 항목 완충',
-            popular: false,
-            color: '#38bdf8'
-          },
-          {
-            id: 'large',
-            name: '대형 성간 수송선',
-            gold: 65000,
-            baseGold: '50,000 G',
-            bonus: '+30% 대량 보너스',
-            price: '9,900원',
-            desc: '4단계 풀강 및 최종 5단계 만렙(48,000G) 핵심 부위 직행',
-            popular: true,
-            color: '#fbbf24'
-          },
-          {
-            id: 'vault',
-            name: '은하계 중앙 금고',
-            gold: 220000,
-            baseGold: '150,000 G',
-            bonus: '+45% 파격 보너스',
-            price: '25,000원',
-            desc: '격납고 전 항목 풀강(34.7만 G)의 65% 이상을 단숨에 완성',
-            popular: false,
-            color: '#a855f7'
-          }
-        ];
-
-        goldPacks.forEach(pack => {
-          const card = document.createElement('div');
-          card.className = 'gold-pack-card ' + (pack.popular ? 'popular' : '');
-          card.innerHTML = `
-            ${pack.popular ? '<div style="position: absolute; top: -10px; right: 14px; background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; font-size: 9.5px; font-weight: 900; padding: 2px 8px; border-radius: 6px; box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);">🔥 가장 인기</div>' : ''}
-            <div>
-              <div style="font-size: 14px; font-weight: 800; color: ${pack.color}; margin-bottom: 4px;">${pack.name}</div>
-              <div style="font-size: 22px; font-weight: 900; color: #fde047; font-family: monospace; line-height: 1.1;">
-                ${pack.gold.toLocaleString()} G
+        // 2. Ace Pilot VIP Package (Displayed ONLY on Set 3+ or if already purchased)
+        if (unlockedSet >= 3 || isVip) {
+          const vipCard = document.createElement('div');
+          vipCard.className = 'vip-hero-card';
+          vipCard.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span style="font-size: 26px;">👑</span>
+                <div>
+                  <div style="font-size: 17px; font-weight: 900; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.7);">에이스 파일럿 VIP 패키지 (ACE PILOT VIP)</div>
+                  <div style="font-size: 11px; color: #fde68a;">영구 특권 올인원 • 모든 강제 광고 제거 • 평생 편안한 우주 전투</div>
+                </div>
               </div>
-              <div style="font-size: 10.5px; color: #34d399; font-weight: 700; margin-top: 2px;">
-                기본 ${pack.baseGold} (${pack.bonus})
-              </div>
-              <div style="font-size: 11px; color: #94a3b8; margin-top: 6px; line-height: 1.3;">
-                ${pack.desc}
+              <span style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #050711; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 8px; box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);">
+                ${isVip ? '✅ VIP 활성화됨' : '3,900원 / $2.99'}
+              </span>
+            </div>
+
+            <div class="vip-perks-grid">
+              <div class="vip-perk-chip">🛡️ <strong>영구 출격 라이프 4기</strong> (기본 3대 ➔ 4대 확장)</div>
+              <div class="vip-perk-chip">🧲 <strong>전 화면 골드 자동 자석 흡수</strong> (Coin Magnet)</div>
+              <div class="vip-perk-chip">🚫 <strong>모든 전면/강제 광고 영구 제거</strong> (No-Ads)</div>
+              <div class="vip-perk-chip">⚡ <strong>비상 부활 / 골드 2배 광고 없이 즉시 프리패스</strong></div>
+              <div class="vip-perk-chip">🎁 <strong>개척 지원금 +5,000 G</strong> (구매 시 즉시 지급)</div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; position: relative; z-index: 2; margin-top: 4px;">
+              ${isVip ? `
+                <button class="btn" disabled style="background: rgba(34, 197, 94, 0.2); border: 1.5px solid #22c55e; color: #22c55e; cursor: default; font-size: 14px; padding: 10px 24px; box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);">
+                  ✅ VIP 특권이 영구 활성화되어 있습니다
+                </button>
+              ` : `
+                <button id="btn-buy-vip" class="btn" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%); color: #050711; font-weight: 900; font-size: 15px; padding: 11px 28px; box-shadow: 0 0 25px rgba(251, 191, 36, 0.8);">
+                  👑 3,900원에 VIP 특권 영구 획득
+                </button>
+              `}
+            </div>
+          `;
+          this.hangarShopContainer.appendChild(vipCard);
+        } else {
+          // Locked teaser for Set 1~2 players
+          const lockedCard = document.createElement('div');
+          lockedCard.style.cssText = 'width: 100%; background: rgba(15, 23, 42, 0.6); border: 1.5px dashed rgba(251, 191, 36, 0.3); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-sizing: border-box;';
+          lockedCard.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="font-size: 24px; filter: grayscale(0.6);">🔒</span>
+              <div>
+                <div style="font-size: 14px; font-weight: 800; color: #94a3b8;">사령부 기밀 보급: 에이스 파일럿 VIP 패키지</div>
+                <div style="font-size: 11.5px; color: #64748b;">SET 3 (섹터 21 돌파) 도달 시 사령부 VIP 특권 패키지가 정식 해금됩니다.</div>
               </div>
             </div>
-            <button class="btn btn-gold-pack" data-pack="${pack.id}" data-gold="${pack.gold}" data-price="${pack.price}" style="width: 100%; font-size: 13.5px; padding: 9px; background: linear-gradient(135deg, rgba(2, 132, 199, 0.4) 0%, rgba(56, 189, 248, 0.25) 100%); border: 1.5px solid ${pack.color}; color: #f8fafc; font-weight: 800;">
-              💎 ${pack.price} 결제
-            </button>
+            <span style="font-size: 11px; font-weight: 800; color: #f59e0b; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); padding: 4px 10px; border-radius: 6px; white-space: nowrap;">
+              SET 3 해금 예정
+            </span>
           `;
-          goldGrid.appendChild(card);
-        });
-
-        this.hangarShopContainer.appendChild(goldGrid);
+          this.hangarShopContainer.appendChild(lockedCard);
+        }
 
         // Bind events inside Shop
         const buyVipBtn = document.getElementById('btn-buy-vip');
@@ -6824,15 +6783,6 @@
         if (dailyAdBtn) {
           dailyAdBtn.addEventListener('click', () => this.claimDailyAdSupply());
         }
-
-        const packBtns = this.hangarShopContainer.querySelectorAll('.btn-gold-pack');
-        packBtns.forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const gold = parseInt(e.currentTarget.getAttribute('data-gold'), 10);
-            const price = e.currentTarget.getAttribute('data-price');
-            this.purchaseGoldPack(gold, price);
-          });
-        });
       }
 
       purchaseVip() {
@@ -6922,15 +6872,18 @@
           return;
         }
 
+        const currentReviveNum = (this.revivesUsedThisRun || 0) + 1;
+        const isLastChance = currentReviveNum >= 2;
+
         // Configure button for VIP vs Free Ad
         if (this.isVipUser) {
-          adBtn.innerHTML = '👑 [VIP 프리패스] 즉시 무료 부활 (0초)';
+          adBtn.innerHTML = `👑 [VIP 프리패스] 즉시 무료 부활 (${currentReviveNum}/2)`;
           adBtn.style.background = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
           adBtn.style.boxShadow = '0 0 25px rgba(251, 191, 36, 0.8)';
           adBtn.style.color = '#050711';
           adBtn.style.fontWeight = '900';
         } else {
-          adBtn.innerHTML = '🎬 광고 시청하고 무료 부활';
+          adBtn.innerHTML = `🎬 광고 시청하고 무료 부활 (${currentReviveNum}/2${isLastChance ? ' 마지막' : ''})`;
           adBtn.style.background = 'linear-gradient(135deg, #00f0ff 0%, #3b82f6 100%)';
           adBtn.style.boxShadow = '0 0 25px rgba(0, 240, 255, 0.6)';
           adBtn.style.color = '#ffffff';
@@ -6969,7 +6922,8 @@
         if (modal) modal.classList.add('hidden');
 
         const doActualRevive = () => {
-          this.reviveUsedThisRun = true;
+          this.revivesUsedThisRun = (this.revivesUsedThisRun || 0) + 1;
+          this.reviveUsedThisRun = this.revivesUsedThisRun >= 2;
           this.player.lives = this.isVipUser ? 4 : 3;
           this.player.weaponLevel = Math.max(2, this.player.weaponLevel);
           this.player.respawn(this);
@@ -6982,7 +6936,7 @@
           sounds.playVictory();
           sounds.setBGMTrack('set' + this.getSet());
 
-          this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 35, '⭐ 비상 전투 복구 완료! RECOVERED! ⭐', '#00f0ff', 18));
+          this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 35, `⭐ 비상 전투 복구 완료 (${this.revivesUsedThisRun}/2) ⭐`, '#00f0ff', 18));
           this.state = 'PLAYING';
         };
 
@@ -7098,7 +7052,6 @@
       resume() {
         if (this.state !== 'PAUSED') return;
         this.state = 'PLAYING';
-        this.reviveUsedThisRun = false;
         this.lastTime = performance.now();
         this.accumulator = 0;
         this.touchActive = false;
@@ -7552,7 +7505,10 @@
         } catch (e) {}
 
         this.state = 'PLAYING';
+        this.revivesUsedThisRun = 0;
         this.reviveUsedThisRun = false;
+        const rescueCard = document.getElementById('gameover-emergency-rescue');
+        if (rescueCard) rescueCard.classList.add('hidden');
         this.lastTime = performance.now();
         this.accumulator = 0;
         this.score = 0;
@@ -7905,6 +7861,7 @@
         const nextSet = curSet + 1;
 
         this.state = 'PLAYING';
+        this.revivesUsedThisRun = 0;
         this.reviveUsedThisRun = false;
         this.stageIntermission = {
           active: true,
@@ -7984,13 +7941,10 @@
 
       updateLivesHUD() {
         const heart4 = document.getElementById('heart-4');
-        const vipBadge = document.getElementById('hud-vip-badge');
         if (this.isVipUser) {
           if (heart4) heart4.classList.remove('hidden');
-          if (vipBadge) vipBadge.classList.remove('hidden');
         } else {
           if (heart4) heart4.classList.add('hidden');
-          if (vipBadge) vipBadge.classList.add('hidden');
         }
 
         const maxHearts = this.isVipUser ? 4 : 3;
@@ -9173,7 +9127,7 @@
         this.updateWeaponHUD();
 
         if (this.player.lives <= 0) {
-          if (!this.reviveUsedThisRun) {
+          if ((this.revivesUsedThisRun || 0) < 2) {
             this.showReviveCountdown();
           } else {
             this.gameOver();
