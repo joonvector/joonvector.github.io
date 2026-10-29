@@ -4971,46 +4971,66 @@
             }
             break;
 
-          case 'solaris_fortress': // Set 4: Aegis Citadel (체력 3200 유지, 원형 탄막 간격 확대 및 직사포 간격 완화)
-            if (this.attackTimer % 85 === 0) {
+          case 'solaris_fortress': // Set 4: Aegis Citadel (황금 철벽 요새 - 전방 집중 7갈래 황금포 + 상하 조준 트윈 플라즈마탄)
+            // 1. 7갈래 전방 부채꼴 황금포 (플레이어 방향으로만 집중 방사, 낭비되는 후방 탄막 제거)
+            if (this.attackTimer % 72 === 0) {
               sounds.playEnemyShoot();
-              for (let k = 0; k < 6; k++) {
-                const ang = (k / 6) * Math.PI * 2 + (this.time * 0.55);
-                bullets.push(new Bullet(this.x - 30, this.y, Math.cos(ang) * 6.2, Math.sin(ang) * 6.2, true, this.bulletColor));
-              }
-            }
-            if (this.attackTimer % 100 === 0) {
-              sounds.playEnemyShoot();
-              bullets.push(new Bullet(this.x - 95, this.y - 52, -8.2, 0, true, '#fbbf24'));
-              bullets.push(new Bullet(this.x - 95, this.y + 52, -8.2, 0, true, '#fbbf24'));
-            }
-            if (isEnraged && this.attackTimer % 95 === 0) {
-              for (let k = 0; k < 8; k++) {
-                const ang = (k / 8) * Math.PI * 2;
-                bullets.push(new Bullet(this.x - 30, this.y, Math.cos(ang) * 6.8, Math.sin(ang) * 6.8, true, '#fef08a'));
-              }
-            }
-            break;
-
-          case 'void_titan': // Set 5: Chronos Omega (최종 보스 체력 4500 유지, 나선탄 및 부채꼴 탄막 사이 회피 공간 보장)
-            if (this.attackTimer % 16 === 0) {
-              const spiralAngle = this.time * 2.6;
-              bullets.push(new Bullet(this.x - 75, this.y, Math.cos(spiralAngle) * 6.8, Math.sin(spiralAngle) * 6.8, true, this.bulletColor));
-            }
-            if (this.attackTimer % 90 === 0) {
-              sounds.playEnemyShoot();
-              [-0.42, -0.21, 0, 0.21, 0.42].forEach(ang => {
-                bullets.push(new Bullet(this.x - 75, this.y, Math.cos(Math.PI + ang) * 7.4, Math.sin(Math.PI + ang) * 7.4, true, '#c084fc'));
+              [-0.48, -0.32, -0.16, 0, 0.16, 0.32, 0.48].forEach(ang => {
+                bullets.push(new Bullet(this.x - 70, this.y, Math.cos(Math.PI + ang) * 7.2, Math.sin(Math.PI + ang) * 7.2, true, '#fbbf24'));
               });
             }
-            if (isEnraged && this.attackTimer % 70 === 0) {
+            // 2. 상하단 위성 포탑에서 발사되는 플레이어 위치 조준 트윈 플라즈마탄
+            if (this.attackTimer % 95 === 0) {
               sounds.playEnemyShoot();
               const dx = player.x - this.x;
               const dy = player.y - this.y;
               const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-              bullets.push(new Bullet(this.x - 75, this.y - 55, (dx / dist) * 8.0, (dy / dist) * 8.0, true, '#e879f9'));
-              bullets.push(new Bullet(this.x - 75, this.y + 55, (dx / dist) * 8.0, (dy / dist) * 8.0, true, '#e879f9'));
-              bullets.push(new Bullet(this.x - 90, this.y, -8.4, 0, true, '#f43f5e'));
+              const spd = 7.6;
+              bullets.push(new Bullet(this.x - 80, this.y - 50, (dx / dist) * spd, (dy / dist) * spd, true, '#f59e0b'));
+              bullets.push(new Bullet(this.x - 80, this.y + 50, (dx / dist) * spd, (dy / dist) * spd, true, '#f59e0b'));
+            }
+            // 3. 분노 시 요새 오버드라이브: 9갈래 와이드 황금포 + 고속 직사 중형포
+            if (isEnraged && this.attackTimer % 65 === 0) {
+              [-0.56, -0.42, -0.28, -0.14, 0, 0.14, 0.28, 0.42, 0.56].forEach(ang => {
+                bullets.push(new Bullet(this.x - 65, this.y, Math.cos(Math.PI + ang) * 7.6, Math.sin(Math.PI + ang) * 7.6, true, '#fef08a'));
+              });
+              bullets.push(new Bullet(this.x - 95, this.y - 20, -8.6, 0, true, '#ff0055'));
+              bullets.push(new Bullet(this.x - 95, this.y + 20, -8.6, 0, true, '#ff0055'));
+            }
+            break;
+
+          case 'void_titan': // Set 5: Chronos Omega (최종 보스 체력 4500 - 시공간 2중 소용돌이 파동 + 7갈래 암흑물질 탄막벽 + 크로노스 3연사 저격)
+            // 1. 전방 180도 시공간 2중 소용돌이 파동탄 (플레이어 방향으로만 회전 진동 방사)
+            if (this.attackTimer % 18 === 0) {
+              const waveAng1 = Math.PI + Math.sin(this.time * 2.8) * 0.52;
+              const waveAng2 = Math.PI - Math.sin(this.time * 2.8) * 0.52;
+              bullets.push(new Bullet(this.x - 75, this.y - 15, Math.cos(waveAng1) * 7.0, Math.sin(waveAng1) * 7.0, true, this.bulletColor));
+              bullets.push(new Bullet(this.x - 75, this.y + 15, Math.cos(waveAng2) * 7.0, Math.sin(waveAng2) * 7.0, true, this.bulletColor));
+            }
+            // 2. 7갈래 암흑물질 부채꼴 파동 (회피 공간이 확실히 존재하는 리드미컬 탄막)
+            if (this.attackTimer % 78 === 0) {
+              sounds.playEnemyShoot();
+              [-0.50, -0.33, -0.16, 0, 0.16, 0.33, 0.50].forEach(ang => {
+                bullets.push(new Bullet(this.x - 75, this.y, Math.cos(Math.PI + ang) * 7.4, Math.sin(Math.PI + ang) * 7.4, true, '#c084fc'));
+              });
+            }
+            // 3. 크로노스 3연사 정밀 저격 (상/중/하 동시 발사)
+            if (this.attackTimer % 110 === 0) {
+              sounds.playEnemyShoot();
+              const dx = player.x - this.x;
+              const dy = player.y - this.y;
+              const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+              const snSpd = 8.2;
+              bullets.push(new Bullet(this.x - 75, this.y - 45, (dx / dist) * snSpd, (dy / dist) * snSpd, true, '#e879f9'));
+              bullets.push(new Bullet(this.x - 85, this.y, (dx / dist) * (snSpd + 0.6), (dy / dist) * (snSpd + 0.6), true, '#f43f5e'));
+              bullets.push(new Bullet(this.x - 75, this.y + 45, (dx / dist) * snSpd, (dy / dist) * snSpd, true, '#e879f9'));
+            }
+            // 4. 분노 시 시공 붕괴: 8갈래 엇갈림 암흑 탄막벽 + 고속 정면 빔
+            if (isEnraged && this.attackTimer % 60 === 0) {
+              [-0.55, -0.38, -0.22, -0.06, 0.06, 0.22, 0.38, 0.55].forEach(ang => {
+                bullets.push(new Bullet(this.x - 70, this.y, Math.cos(Math.PI + ang) * 8.0, Math.sin(Math.PI + ang) * 8.0, true, '#a855f7'));
+              });
+              bullets.push(new Bullet(this.x - 90, this.y, -9.0, 0, true, '#ff0055'));
             }
             break;
         }
@@ -6839,11 +6859,11 @@
         this.floatingTexts.push(new FloatingText(WIDTH / 2, HEIGHT / 2 - 40, `💎 +${goldAmount.toLocaleString()}G 결제 충전 완료!`, '#ffd700', 18));
       }
 
-      purchaseEmergencyPack() {
+      purchaseEmergencyPack(goldAmount = 15000, priceStr = '1,900원') {
         if (this.emergencyPackPurchased) return;
         this.emergencyPackPurchased = true;
-        this.gold = (this.gold || 0) + 15000;
-        this.stats.totalCoins = (this.stats.totalCoins || 0) + 15000;
+        this.gold = (this.gold || 0) + goldAmount;
+        this.stats.totalCoins = (this.stats.totalCoins || 0) + goldAmount;
         this.saveGameData();
         this.updateGoldHUD();
         sounds.playVictory();
@@ -6851,12 +6871,130 @@
         if (rescueCard) {
           rescueCard.innerHTML = `
             <div style="color: #34d399; font-size: 13.5px; font-weight: 800; text-align: center; padding: 10px;">
-              ✅ 전선 긴급 구원 보급 완료! (+15,000 G 즉시 수령됨)<br>
+              ✅ 구원 보급 완료! (+${goldAmount.toLocaleString()} G 즉시 수령됨)<br>
               <span style="font-size: 11.5px; color: #94a3b8;">격납고에서 화력과 쉴드를 업그레이드하고 다시 도전하세요!</span>
             </div>
           `;
         }
-        this.floatingTexts.push(new FloatingText(WIDTH / 2, HEIGHT / 2 - 40, '🚨 전선 긴급 구원 보급금 +15,000G 수령 완료!', '#f59e0b', 18));
+        this.floatingTexts.push(new FloatingText(WIDTH / 2, HEIGHT / 2 - 40, `🚨 보급금 +${goldAmount.toLocaleString()}G 수령 완료!`, '#f59e0b', 18));
+      }
+
+      renderEmergencyRescueCard(curSet) {
+        const rescueCard = document.getElementById('gameover-emergency-rescue');
+        if (!rescueCard) return;
+
+        if (curSet < 2 || this.emergencyPackPurchased) {
+          rescueCard.classList.add('hidden');
+          return;
+        }
+
+        rescueCard.classList.remove('hidden');
+
+        if (curSet <= 3) {
+          // SET 2 & 3: Standard Emergency Supply (1,900원 / 15,000G)
+          rescueCard.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 5px;">
+              <div style="display: flex; align-items: center; gap: 7px;">
+                <span style="font-size: 18px; animation: pulse 1s infinite;">🚨</span>
+                <strong style="color: #fbbf24; font-size: 13.5px; letter-spacing: 0.5px;">사령부 전선 긴급 구원 보급령</strong>
+              </div>
+              <span style="font-size: 11px; background: #ef4444; color: #fff; font-weight: 800; padding: 2px 7px; border-radius: 6px;">1회 한정 파격 1,900원</span>
+            </div>
+            <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 8px; line-height: 1.4;">
+              상위 구역 외계 함대의 저항이 격렬합니다! 긴급 지원금을 수령하여 화력과 쉴드를 즉시 강화하세요!
+            </p>
+            <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; margin-bottom: 4px;">
+              <div style="font-size: 13px; font-weight: 900; color: #fde047; font-family: monospace;">
+                💰 15,000 G 즉시 수령 <span style="font-size: 11px; color: #38bdf8;">(2~3단계 장비 완충)</span>
+              </div>
+              <button id="btn-buy-rescue-std" class="btn" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); font-size: 13px; padding: 7px 16px; box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); white-space: nowrap;">
+                ⚡ 1,900원 보급 받기
+              </button>
+            </div>
+          `;
+          const btnStd = document.getElementById('btn-buy-rescue-std');
+          if (btnStd) {
+            btnStd.onclick = () => this.purchaseEmergencyPack(15000, '1,900원');
+          }
+        } else if (curSet === 4) {
+          // SET 4: 2 Options (1,900원 기본 보급 OR 2,900원 성간 정예팩 추천)
+          rescueCard.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 5px;">
+              <div style="display: flex; align-items: center; gap: 7px;">
+                <span style="font-size: 18px; animation: pulse 1s infinite;">⚡</span>
+                <strong style="color: #fbbf24; font-size: 13.5px; letter-spacing: 0.5px;">사령부 SET 4 정예 구원 작전령</strong>
+              </div>
+              <span style="font-size: 11px; background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; font-weight: 800; padding: 2px 7px; border-radius: 6px;">맞춤 보급 선택</span>
+            </div>
+            <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 8px; line-height: 1.4;">
+              SET 4 골든 요새 돌파를 위해 원하는 규모의 긴급 지원금을 선택하여 즉시 수령하세요!
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 7px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                <div style="font-size: 12.5px; font-weight: 800; color: #cbd5e1; font-family: monospace;">
+                  🚨 기본 보급: <span style="color: #fde047; font-weight: 900;">15,000 G</span>
+                </div>
+                <button id="btn-buy-rescue-opt1" class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px; white-space: nowrap;">
+                  1,900원 결제
+                </button>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, rgba(245, 158, 11, 0.15) 0%, rgba(239, 68, 68, 0.2) 100%); padding: 8px 12px; border-radius: 8px; border: 1.5px solid #f59e0b; box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);">
+                <div>
+                  <div style="font-size: 13px; font-weight: 900; color: #fbbf24; font-family: monospace;">
+                    ⭐ 성간 정예팩: <span style="color: #fde047;">35,000 G</span>
+                  </div>
+                  <div style="font-size: 10.5px; color: #38bdf8;">(SET 4 고급 4단계 풀강 지원 • 강력 추천)</div>
+                </div>
+                <button id="btn-buy-rescue-opt2" class="btn" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); font-size: 12.5px; padding: 7px 16px; box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); white-space: nowrap;">
+                  ⚡ 2,900원 수령
+                </button>
+              </div>
+            </div>
+          `;
+          const btn1 = document.getElementById('btn-buy-rescue-opt1');
+          if (btn1) btn1.onclick = () => this.purchaseEmergencyPack(15000, '1,900원');
+          const btn2 = document.getElementById('btn-buy-rescue-opt2');
+          if (btn2) btn2.onclick = () => this.purchaseEmergencyPack(35000, '2,900원');
+        } else if (curSet >= 5) {
+          // SET 5: 2 Options (1,900원 기본 보급 OR 3,900원 은하 결전 결사팩 추천)
+          rescueCard.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 5px;">
+              <div style="display: flex; align-items: center; gap: 7px;">
+                <span style="font-size: 18px; animation: pulse 1s infinite;">🔥</span>
+                <strong style="color: #fbbf24; font-size: 13.5px; letter-spacing: 0.5px;">사령부 최종 결전 비상 총동원령</strong>
+              </div>
+              <span style="font-size: 11px; background: linear-gradient(135deg, #a855f7, #ef4444); color: #fff; font-weight: 800; padding: 2px 7px; border-radius: 6px;">최종 구원 선택</span>
+            </div>
+            <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 8px; line-height: 1.4;">
+              최종 50층 크로노스 오메가와의 결전입니다! 전력 강화를 위한 보급 규모를 선택하세요!
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 7px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                <div style="font-size: 12.5px; font-weight: 800; color: #cbd5e1; font-family: monospace;">
+                  🚨 기본 보급: <span style="color: #fde047; font-weight: 900;">15,000 G</span>
+                </div>
+                <button id="btn-buy-rescue-opt1" class="btn btn-secondary" style="font-size: 12px; padding: 6px 14px; white-space: nowrap;">
+                  1,900원 결제
+                </button>
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(90deg, rgba(168, 85, 247, 0.2) 0%, rgba(239, 68, 68, 0.25) 100%); padding: 8px 12px; border-radius: 8px; border: 1.5px solid #a855f7; box-shadow: 0 0 18px rgba(168, 85, 247, 0.35);">
+                <div>
+                  <div style="font-size: 13px; font-weight: 900; color: #c084fc; font-family: monospace;">
+                    👑 은하 결전 결사팩: <span style="color: #fde047;">65,000 G</span>
+                  </div>
+                  <div style="font-size: 10.5px; color: #fde68a;">(5단계 만렙 무기 48,000G 직행 풀강 • 강력 추천)</div>
+                </div>
+                <button id="btn-buy-rescue-opt2" class="btn" style="background: linear-gradient(135deg, #a855f7 0%, #ef4444 100%); font-size: 12.5px; padding: 7px 16px; box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); white-space: nowrap;">
+                  🔥 3,900원 수령
+                </button>
+              </div>
+            </div>
+          `;
+          const btn1 = document.getElementById('btn-buy-rescue-opt1');
+          if (btn1) btn1.onclick = () => this.purchaseEmergencyPack(15000, '1,900원');
+          const btn2 = document.getElementById('btn-buy-rescue-opt2');
+          if (btn2) btn2.onclick = () => this.purchaseEmergencyPack(65000, '3,900원');
+        }
       }
 
       showReviveCountdown() {
@@ -7101,7 +7239,10 @@
       getHUDLevelText(level = this.level) {
         const curSet = Math.min(5, Math.ceil(level / 10));
         const subLevel = ((level - 1) % 10) + 1;
-        return `${subLevel}/10 (Set${curSet})`;
+        if (level % 10 === 0) {
+          return `SET ${curSet} - BOSS (Lv.${level})`;
+        }
+        return `SET ${curSet} - ${subLevel}/10 (Lv.${level})`;
       }
 
       isBossLevel() {
@@ -7535,7 +7676,7 @@
         if (chosenSet > 1) {
           this.levelUpBannerTimer = 130;
           this.levelUpBannerText = `⚡ SET ${chosenSet} 체크포인트 출격! ⚡`;
-          this.levelUpBannerSub = `[${SET_CONFIGS[chosenSet] ? SET_CONFIGS[chosenSet].name : ('SET ' + chosenSet)}] Lv.${startLevel} 개시 • 기본 무기 LV.${this.player.weaponLevel} 장착!`;
+          this.levelUpBannerSub = `[${SET_CONFIGS[chosenSet] ? SET_CONFIGS[chosenSet].name : ('SET ' + chosenSet)}] 50개 구역 중 ${startLevel}번째 작전 개시 • 기본 무기 LV.${this.player.weaponLevel} 장착!`;
         }
 
         this.bullets = [];
@@ -7918,7 +8059,8 @@
 
         const goSub = document.getElementById('gameover-subtitle');
         if (goSub) {
-          goSub.textContent = `SET ${curSet} (Lv.${this.level}) 작전 중 전사! 현재 세트(SET ${curSet})부터 바로 재도전하거나 이전 세트를 선택하세요.`;
+          const subLevel = ((this.level - 1) % 10) + 1;
+          goSub.textContent = `SET ${curSet} - STAGE ${subLevel}/10 (Lv.${this.level}) 작전 중 전사! 현재 세트(SET ${curSet})부터 바로 재도전하거나 이전 세트를 선택하세요.`;
         }
 
         this.finalScore.textContent = this.score;
@@ -7926,15 +8068,8 @@
         this.finalBest.textContent = this.highScore;
         if (this.finalGold) this.finalGold.textContent = '+' + (this.runGold || 0).toLocaleString() + ' G';
 
-        // Check for Emergency Rescue Pack on Set 2+ death
-        const rescueCard = document.getElementById('gameover-emergency-rescue');
-        if (rescueCard) {
-          if (curSet >= 2 && !this.emergencyPackPurchased) {
-            rescueCard.classList.remove('hidden');
-          } else {
-            rescueCard.classList.add('hidden');
-          }
-        }
+        // Check and render Emergency Rescue Pack on Set 2+ death
+        this.renderEmergencyRescueCard(curSet);
 
         this.gameoverScreen.classList.remove('hidden');
       }
@@ -8473,7 +8608,7 @@
               this.levelTimer = 0;
               this.levelUpBannerTimer = 140;
               this.levelUpBannerText = `⚡ SET ${newSet} 진입 성공! ⚡`;
-              this.levelUpBannerSub = `새로운 우주 구역: [${SET_CONFIGS[newSet].name}] 전투 개시!`;
+              this.levelUpBannerSub = `[${SET_CONFIGS[newSet] ? SET_CONFIGS[newSet].name : ('SET ' + newSet)}] 50개 구역 중 ${this.level}번째 작전 개시`;
               sounds.setBGMTrack('set' + newSet);
               sounds.playLevelUp();
               this.shake(12, 18);
@@ -8505,9 +8640,10 @@
               this.spawnBoss();
             } else {
               this.levelDuration = this.getLevelDurationSec(this.level) * 60;
+              const subLvl = ((this.level - 1) % 10) + 1;
               this.levelUpBannerTimer = 110;
-              this.levelUpBannerText = `⚡ LEVEL ${this.level} REACHED! ⚡`;
-              this.levelUpBannerSub = `작전 시간: ${this.getLevelDurationSec(this.level)}초 | 외계 UFO 편대 공세 강화!`;
+              this.levelUpBannerText = `⚡ SET ${newSet} - STAGE ${subLvl} 돌파! ⚡`;
+              this.levelUpBannerSub = `50개 구역 중 ${this.level}번째 작전 완수`;
               sounds.playLevelUp();
               this.shake(7, 12);
               this.vibrate([25, 20, 25]);
