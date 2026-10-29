@@ -445,6 +445,119 @@
       animation: pulse 1.5s infinite;
     }
 
+    /* ==========================================================
+       MONETIZATION & SHOP UI STYLING (VIP, ADMOB, PACKS)
+       ========================================================== */
+    .vip-hero-card {
+      width: 100%;
+      background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(15, 23, 42, 0.95) 50%, rgba(49, 16, 66, 0.95) 100%);
+      border: 2px solid #fbbf24;
+      border-radius: 16px;
+      padding: 18px 22px;
+      box-shadow: 0 0 35px rgba(251, 191, 36, 0.35);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .vip-hero-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(251, 191, 36, 0.12) 0%, transparent 60%);
+      pointer-events: none;
+      animation: vipAuraRotate 8s linear infinite;
+    }
+    @keyframes vipAuraRotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .vip-perks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 8px;
+      position: relative;
+      z-index: 2;
+    }
+    .vip-perk-chip {
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid rgba(251, 191, 36, 0.4);
+      border-radius: 8px;
+      padding: 7px 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #fde68a;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+    .daily-ad-banner {
+      width: 100%;
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.85) 0%, rgba(15, 23, 42, 0.9) 100%);
+      border: 1.5px solid #10b981;
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
+    }
+    .gold-depot-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 12px;
+      width: 100%;
+    }
+    .gold-pack-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1.5px solid rgba(56, 189, 248, 0.35);
+      border-radius: 14px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      transition: all 0.25s ease;
+      position: relative;
+    }
+    .gold-pack-card:hover {
+      border-color: #38bdf8;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+      transform: translateY(-2px);
+    }
+    .gold-pack-card.popular {
+      border-color: #f59e0b;
+      box-shadow: 0 0 25px rgba(245, 158, 11, 0.35);
+    }
+
+    /* Revive Countdown Modal */
+    #revive-timer-circle {
+      width: 74px;
+      height: 74px;
+      border-radius: 50%;
+      border: 4px solid #00f0ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 14px auto;
+      font-size: 36px;
+      font-weight: 900;
+      color: #00f0ff;
+      box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);
+      font-family: monospace;
+      animation: pulseGlow 1s infinite alternate;
+    }
+    @keyframes pulseGlow {
+      from { transform: scale(1); box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
+      to { transform: scale(1.06); box-shadow: 0 0 35px rgba(0, 240, 255, 0.8); }
+    }
+
     /* Achievement Cards & Summary Styling */
     .ach-summary-bar {
       grid-column: 1 / -1;
@@ -1241,7 +1354,9 @@
             <span class="heart-icon" id="heart-1">♥</span>
             <span class="heart-icon" id="heart-2">♥</span>
             <span class="heart-icon" id="heart-3">♥</span>
+            <span class="heart-icon hidden" id="heart-4" style="color: #fbbf24; filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.9));">♥</span>
           </div>
+          <span id="hud-vip-badge" class="hidden" style="font-size: 9.5px; font-weight: 900; color: #050711; background: linear-gradient(135deg, #fbbf24, #f59e0b); padding: 1px 5px; border-radius: 4px; box-shadow: 0 0 10px rgba(251, 191, 36, 0.6); letter-spacing: 0.5px;">👑 VIP</span>
           <div style="font-size: 13px; font-weight: 800; color: #facc15; font-family: monospace; letter-spacing: 1px;" id="hud-bomb-indicator">
             💣 x2
           </div>
@@ -1456,9 +1571,64 @@
         <div class="set-selector-desc" id="gameover-set-desc">SET 1: 네온 사이안 성운 (Lv.1 출격)</div>
       </div>
 
+      <!-- Emergency Rescue Pack Banner (Triggered only on Set 2+ Death) -->
+      <div id="gameover-emergency-rescue" class="hidden" style="width: 100%; max-width: 520px; background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(69, 10, 10, 0.95) 100%); border: 2px solid #f59e0b; border-radius: 14px; padding: 12px 16px; margin: 6px 0 14px 0; box-shadow: 0 0 28px rgba(245, 158, 11, 0.4); text-align: left; position: relative;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 5px;">
+          <div style="display: flex; align-items: center; gap: 7px;">
+            <span style="font-size: 18px; animation: pulse 1s infinite;">🚨</span>
+            <strong style="color: #fbbf24; font-size: 13.5px; letter-spacing: 0.5px;">사령부 전선 긴급 구원 보급령</strong>
+          </div>
+          <span style="font-size: 11px; background: #ef4444; color: #fff; font-weight: 800; padding: 2px 7px; border-radius: 6px;">1회 한정 파격 1,900원</span>
+        </div>
+        <p style="font-size: 12px; color: #cbd5e1; margin-bottom: 8px; line-height: 1.4;">
+          상위 구역 외계 함대의 저항이 격렬합니다! 긴급 지원금을 수령하여 화력과 쉴드를 즉시 풀강하세요!
+        </p>
+        <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.4); padding: 8px 12px; border-radius: 8px; margin-bottom: 10px;">
+          <div style="font-size: 13px; font-weight: 900; color: #fde047; font-family: monospace;">
+            💰 15,000 G 즉시 수령 <span style="font-size: 11px; color: #38bdf8;">(2~3단계 업그레이드 완충)</span>
+          </div>
+          <button id="btn-buy-emergency-pack" class="btn" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); font-size: 13px; padding: 7px 16px; box-shadow: 0 0 15px rgba(239, 68, 68, 0.6); white-space: nowrap;">
+            ⚡ 1,900원 보급 받기
+          </button>
+        </div>
+      </div>
+
       <div style="display: flex; gap: 12px; flex-wrap: wrap; justify-content: center;">
         <button id="restart-btn" class="btn">🔄 다시 도전 (RETRY)</button>
         <button id="hangar-btn-gameover" class="btn btn-hangar" style="font-size: 15px; padding: 11px 28px;">🚀 격납고 (HANGAR)</button>
+      </div>
+    </div>
+
+    <!-- 5-Second Emergency Revive Countdown Overlay -->
+    <div id="revive-modal" class="screen-overlay hidden" style="background: rgba(5, 7, 17, 0.88); backdrop-filter: blur(8px); z-index: 1000; padding: 20px;">
+      <div style="background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 27, 75, 0.95) 100%); border: 2px solid #00f0ff; border-radius: 20px; padding: 22px 28px; max-width: 440px; width: 92%; text-align: center; box-shadow: 0 0 50px rgba(0, 240, 255, 0.45);">
+        <div style="font-size: 13px; font-weight: 900; color: #ef4444; letter-spacing: 2px; margin-bottom: 6px;">⚠️ EMERGENCY PROTOCOL ⚠️</div>
+        <h2 style="font-size: 24px; color: #fff; margin-bottom: 12px; font-weight: 900; text-shadow: 0 0 15px rgba(0, 240, 255, 0.8);">비상 전투 복구 지원</h2>
+        <div id="revive-timer-circle">5</div>
+        <p style="font-size: 13.5px; color: #cbd5e1; margin-bottom: 16px; line-height: 1.4;">
+          지금 부활하여 전선으로 복귀하시겠습니까?<br>
+          <strong style="color: #38bdf8;">체력 100% 완전 회복 + 4초 무적 보호막 + 전탄 소멸!</strong>
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button id="revive-btn-watch-ad" class="btn" style="background: linear-gradient(135deg, #00f0ff 0%, #3b82f6 100%); font-size: 15px; padding: 12px 20px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.6);">
+            🎬 광고 시청하고 무료 부활
+          </button>
+          <button id="revive-btn-cancel" class="btn btn-secondary" style="font-size: 13px; padding: 9px 16px;">
+            작전 포기하고 정산 (X)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AdMob Video Ad Simulation Modal -->
+    <div id="admob-sim-modal" class="screen-overlay hidden" style="background: rgba(0, 0, 0, 0.95); z-index: 2000; padding: 20px; text-align: center; display: none;">
+      <div style="max-width: 400px; width: 90%; background: #0f172a; border: 2px solid #38bdf8; border-radius: 16px; padding: 24px; box-shadow: 0 0 40px rgba(56, 189, 248, 0.5);">
+        <div style="font-size: 12px; color: #94a3b8; margin-bottom: 6px; letter-spacing: 1px;">Google AdMob Rewarded Video</div>
+        <h3 id="admob-sim-title" style="color: #00f0ff; font-size: 18px; margin-bottom: 16px;">🎬 보상형 광고 재생 중...</h3>
+        <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; margin-bottom: 16px;">
+          <div id="admob-sim-progress" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00f0ff, #3b82f6); transition: width 0.1s linear;"></div>
+        </div>
+        <p style="font-size: 12.5px; color: #cbd5e1;">잠시만 기다려 주세요 (스폰서 비디오 시청 중)</p>
       </div>
     </div>
 
@@ -1614,6 +1784,10 @@
             <span>🎖️</span> 도전 과제 & 훈장 (ACHIEVEMENTS)
             <span id="hangar-ach-badge" class="hangar-tab-badge hidden">0</span>
           </button>
+          <button id="hangar-tab-btn-shop" class="hangar-tab-btn">
+            <span>💎</span> 보급 상점 (SHOP)
+            <span id="hangar-shop-badge" class="hangar-tab-badge" style="background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff;">HOT</span>
+          </button>
         </div>
 
         <!-- Upgrade Cards Grid -->
@@ -1623,6 +1797,11 @@
 
         <!-- Achievements Cards Grid -->
         <div id="hangar-achievements-container" class="hidden" style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; width: 100%; margin-bottom: 14px;">
+          <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Shop Container Grid -->
+        <div id="hangar-shop-container" class="hidden" style="display: none; width: 100%; flex-direction: column; gap: 14px; margin-bottom: 14px;">
           <!-- Dynamically populated via JS -->
         </div>
 
@@ -3238,7 +3417,7 @@
         this.collected = false;
       }
 
-      update(player, isIntermission) {
+      update(player, isIntermission, isVip = false) {
         this.time += 0.05;
         this.rot += this.rotSpeed;
 
@@ -3250,13 +3429,14 @@
 
         // 자석 흡수 판정:
         // 1) 보스 격파 후 인터미션 시 전 화면 코인 전원 자동 흡수!
-        // 2) 평상시 플레이어 자석 반경 (185px)
-        const magnetDist = isIntermission ? 1600 : 185;
+        // 2) VIP 유저: 화면 전체(1400px) 골드 자석 자동 흡수 (진공 청소기 효과!)
+        // 3) 일반 유저: 근접 자석 반경 (185px)
+        const magnetDist = isIntermission ? 1600 : (isVip ? 1400 : 185);
 
         if (dist < magnetDist || this.magnetized) {
           this.magnetized = true;
-          // 부드럽고 시원하게 가속되며 플레이어로 빨려 들어감
-          const pullSpeed = Math.min(22, 6.0 + 380 / (dist + 30));
+          // 부드럽고 시원하게 가속되며 플레이어로 빨려 들어감 (VIP는 더 빠르고 강력)
+          const pullSpeed = Math.min(isVip ? 26 : 22, (isVip ? 8.5 : 6.0) + 420 / (dist + 30));
           this.vx = (dx / dist) * pullSpeed;
           this.vy = (dy / dist) * pullSpeed;
           this.x += this.vx;
@@ -3877,6 +4057,7 @@
         this.enginePulse = 0;
 
         this.lives = 3;
+        this.maxLives = 3;
         this.weaponLevel = 1; // 1: Dual, 2: Triple, 3: Hyper Dual + Homing Missiles
         this.missileTimer = 0;
         this.shieldTimer = 180; // 3초 보호막 (60fps * 3 = 180프레임)
@@ -3903,7 +4084,8 @@
         this.targetRollScaleY = 1.0;
         this.enginePulse = 0;
 
-        this.lives = 3;
+        this.lives = (game && game.isVipUser) ? 4 : 3;
+        this.maxLives = (game && game.isVipUser) ? 4 : 3;
         this.weaponLevel = 1;
         this.missileTimer = 0;
         this.shootCooldown = 0;
@@ -4156,6 +4338,20 @@
         // --- 3D BANKING & PITCH TILT TRANSFORM ---
         c.rotate(this.rollAngle);
         c.scale(1.0, this.rollScaleY);
+
+        // VIP Golden Ace Aura
+        if (typeof game !== 'undefined' && game && game.isVipUser) {
+          c.save();
+          c.strokeStyle = '#fbbf24';
+          c.shadowColor = '#fbbf24';
+          c.shadowBlur = 14;
+          c.lineWidth = 1.8;
+          c.globalAlpha = 0.55 + Math.sin(this.enginePulse * 1.5) * 0.25;
+          c.beginPath();
+          c.arc(0, 0, 36, 0, Math.PI * 2);
+          c.stroke();
+          c.restore();
+        }
 
         // --- DUAL AFTERBURNER SHOCK-DIAMOND PLASMA JETS ---
         const isBoost = this.vx > 0.8 || this.isCharged;
@@ -5444,9 +5640,12 @@
         this.hangarGoldDisplay = document.getElementById('hangar-gold-display');
         this.hangarCardsContainer = document.getElementById('hangar-cards-container');
         this.hangarAchievementsContainer = document.getElementById('hangar-achievements-container');
+        this.hangarShopContainer = document.getElementById('hangar-shop-container');
         this.hangarTabBtnUpg = document.getElementById('hangar-tab-btn-upgrades');
         this.hangarTabBtnAch = document.getElementById('hangar-tab-btn-achievements');
+        this.hangarTabBtnShop = document.getElementById('hangar-tab-btn-shop');
         this.hangarAchBadge = document.getElementById('hangar-ach-badge');
+        this.hangarShopBadge = document.getElementById('hangar-shop-badge');
         this.hangarStatCoins = document.getElementById('hangar-stat-coins');
         this.hangarStatKills = document.getElementById('hangar-stat-kills');
         this.hangarStatBosses = document.getElementById('hangar-stat-bosses');
@@ -5626,6 +5825,10 @@
             }, data.upgrades || {});
             this.stats = Object.assign({}, defaultStats, data.stats || {});
             this.achievements = Object.assign({}, data.achievements || {});
+            this.isVipUser = !!data.isVipUser;
+            this.emergencyPackPurchased = !!data.emergencyPackPurchased;
+            this.dailyAdSupplies = typeof data.dailyAdSupplies === 'number' ? data.dailyAdSupplies : 0;
+            this.lastAdSupplyDate = data.lastAdSupplyDate || '';
             const legacyBest = parseInt(localStorage.getItem('cosmic_best') || '0', 10);
             if (legacyBest > (this.stats.highScore || 0)) {
               this.stats.highScore = legacyBest;
@@ -5634,6 +5837,10 @@
           } else {
             const legacyBest = parseInt(localStorage.getItem('cosmic_best') || '0', 10);
             this.gold = 0;
+            this.isVipUser = false;
+            this.emergencyPackPurchased = false;
+            this.dailyAdSupplies = 0;
+            this.lastAdSupplyDate = '';
             this.upgrades = { firepower: 0, speed: 0, shield: 0, bombs: 0, hyper: 0 };
             this.stats = Object.assign({}, defaultStats, { highScore: legacyBest });
             this.achievements = {};
@@ -5641,6 +5848,10 @@
           }
         } catch (e) {
           this.gold = 0;
+          this.isVipUser = false;
+          this.emergencyPackPurchased = false;
+          this.dailyAdSupplies = 0;
+          this.lastAdSupplyDate = '';
           this.upgrades = { firepower: 0, speed: 0, shield: 0, bombs: 0, hyper: 0 };
           this.stats = Object.assign({}, defaultStats);
           this.achievements = {};
@@ -5654,6 +5865,10 @@
         try {
           const data = {
             gold: this.gold,
+            isVipUser: !!this.isVipUser,
+            emergencyPackPurchased: !!this.emergencyPackPurchased,
+            dailyAdSupplies: this.dailyAdSupplies || 0,
+            lastAdSupplyDate: this.lastAdSupplyDate || '',
             upgrades: this.upgrades,
             stats: {
               totalCoins: this.stats.totalCoins || 0,
@@ -5800,6 +6015,17 @@
             badge.classList.remove('hidden');
           } else {
             badge.classList.add('hidden');
+          }
+        }
+
+        const shopBadge = document.getElementById('hangar-shop-badge');
+        if (shopBadge) {
+          if (this.isVipUser) {
+            shopBadge.textContent = 'VIP';
+            shopBadge.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+          } else {
+            shopBadge.textContent = 'HOT';
+            shopBadge.style.background = 'linear-gradient(135deg, #f59e0b, #ef4444)';
           }
         }
       }
@@ -6241,8 +6467,13 @@
           this.hangarTabBtnAch.classList.toggle('active', this.hangarActiveTab === 'achievements');
         }
 
+        if (this.hangarTabBtnShop) {
+          this.hangarTabBtnShop.classList.toggle('active', this.hangarActiveTab === 'shop');
+        }
+
         if (this.hangarActiveTab === 'achievements') {
           if (this.hangarCardsContainer) this.hangarCardsContainer.style.display = 'none';
+          if (this.hangarShopContainer) this.hangarShopContainer.style.display = 'none';
           if (this.hangarAchievementsContainer) {
             this.hangarAchievementsContainer.style.display = 'grid';
             this.renderAchievementsUI();
@@ -6250,8 +6481,19 @@
           return;
         }
 
+        if (this.hangarActiveTab === 'shop') {
+          if (this.hangarCardsContainer) this.hangarCardsContainer.style.display = 'none';
+          if (this.hangarAchievementsContainer) this.hangarAchievementsContainer.style.display = 'none';
+          if (this.hangarShopContainer) {
+            this.hangarShopContainer.style.display = 'flex';
+            this.renderShopUI();
+          }
+          return;
+        }
+
         // UPGRADES TAB
         if (this.hangarAchievementsContainer) this.hangarAchievementsContainer.style.display = 'none';
+        if (this.hangarShopContainer) this.hangarShopContainer.style.display = 'none';
         if (!this.hangarCardsContainer) return;
         this.hangarCardsContainer.style.display = 'grid';
         this.hangarCardsContainer.innerHTML = '';
@@ -6424,6 +6666,365 @@
         });
       }
 
+      renderShopUI() {
+        if (!this.hangarShopContainer) return;
+        this.hangarShopContainer.innerHTML = '';
+
+        // 1. VIP Hero Card
+        const vipCard = document.createElement('div');
+        vipCard.className = 'vip-hero-card';
+        const isVip = !!this.isVipUser;
+
+        vipCard.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 26px;">👑</span>
+              <div>
+                <div style="font-size: 17px; font-weight: 900; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.7);">에이스 파일럿 VIP 패키지 (ACE PILOT VIP)</div>
+                <div style="font-size: 11px; color: #fde68a;">영구 특권 올인원 • 모든 강제 광고 제거 • 평생 편안한 우주 전투</div>
+              </div>
+            </div>
+            <span style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #050711; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 8px; box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);">
+              ${isVip ? '✅ VIP 활성화됨' : '3,900원 / $2.99'}
+            </span>
+          </div>
+
+          <div class="vip-perks-grid">
+            <div class="vip-perk-chip">🛡️ <strong>영구 출격 라이프 4기</strong> (기본 3대 ➔ 4대 확장)</div>
+            <div class="vip-perk-chip">🧲 <strong>전 화면 골드 자동 자석 흡수</strong> (Coin Magnet)</div>
+            <div class="vip-perk-chip">🚫 <strong>모든 전면/강제 광고 영구 제거</strong> (No-Ads)</div>
+            <div class="vip-perk-chip">⚡ <strong>비상 부활 / 골드 2배 광고 없이 즉시 프리패스</strong></div>
+            <div class="vip-perk-chip">🎁 <strong>개척 지원금 +5,000 G</strong> (구매 시 즉시 지급)</div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; position: relative; z-index: 2; margin-top: 4px;">
+            ${isVip ? `
+              <button class="btn" disabled style="background: rgba(34, 197, 94, 0.2); border: 1.5px solid #22c55e; color: #22c55e; cursor: default; font-size: 14px; padding: 10px 24px; box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);">
+                ✅ VIP 특권이 영구 활성화되어 있습니다
+              </button>
+            ` : `
+              <button id="btn-buy-vip" class="btn" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%); color: #050711; font-weight: 900; font-size: 15px; padding: 11px 28px; box-shadow: 0 0 25px rgba(251, 191, 36, 0.8);">
+                👑 3,900원에 VIP 특권 영구 획득
+              </button>
+            `}
+          </div>
+        `;
+        this.hangarShopContainer.appendChild(vipCard);
+
+        // 2. Daily Ad Reward Banner
+        const todayStr = new Date().toISOString().slice(0, 10);
+        if (this.lastAdSupplyDate !== todayStr) {
+          this.dailyAdSupplies = 0;
+          this.lastAdSupplyDate = todayStr;
+        }
+        const remainingAdSupplies = Math.max(0, 3 - (this.dailyAdSupplies || 0));
+
+        const dailyBanner = document.createElement('div');
+        dailyBanner.className = 'daily-ad-banner';
+        dailyBanner.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <span style="font-size: 28px;">🎬</span>
+            <div>
+              <div style="font-size: 15px; font-weight: 800; color: #34d399;">사령부 일일 비상 자금 보급소 (무료)</div>
+              <div style="font-size: 11.5px; color: #94a3b8;">
+                매일 3회, 짧은 보급 영상을 시청하고 +800 G를 즉시 획득하세요. 
+                ${isVip ? '<strong style="color: #fbbf24;">(👑 VIP는 광고 없이 즉시 원클릭 수령!)</strong>' : ''}
+              </div>
+            </div>
+          </div>
+          <button id="btn-claim-daily-ad" class="btn" ${remainingAdSupplies === 0 ? 'disabled' : ''} style="${remainingAdSupplies === 0 ? 'background: #334155; color: #94a3b8; border: none;' : 'background: linear-gradient(135deg, #10b981 0%, #059669 100%);'} font-size: 13.5px; padding: 9px 20px;">
+            ${remainingAdSupplies > 0 ? (isVip ? `👑 [VIP 프리패스] +800G 수령 (${remainingAdSupplies}/3)` : `🎬 +800G 무료 수령 (${remainingAdSupplies}/3)`) : '오늘 수령 완료 (3/3)'}
+          </button>
+        `;
+        this.hangarShopContainer.appendChild(dailyBanner);
+
+        // 3. Gold Depot Section
+        const goldSectionTitle = document.createElement('div');
+        goldSectionTitle.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-top: 6px;';
+        goldSectionTitle.innerHTML = `
+          <div style="font-size: 15px; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 6px;">
+            <span>💎</span> 골드 보급고 (GOLD DEPOT)
+          </div>
+          <span style="font-size: 11px; color: #94a3b8;">정가 판매 • 상위 세트 돌파용 대량 자금</span>
+        `;
+        this.hangarShopContainer.appendChild(goldSectionTitle);
+
+        const goldGrid = document.createElement('div');
+        goldGrid.className = 'gold-depot-grid';
+
+        const goldPacks = [
+          {
+            id: 'medium',
+            name: '중형 보급 컨테이너',
+            gold: 23000,
+            baseGold: '20,000 G',
+            bonus: '+15% 보너스',
+            price: '4,900원',
+            desc: 'Set 2~3 돌파용 3단계 업그레이드 전 항목 완충',
+            popular: false,
+            color: '#38bdf8'
+          },
+          {
+            id: 'large',
+            name: '대형 성간 수송선',
+            gold: 65000,
+            baseGold: '50,000 G',
+            bonus: '+30% 대량 보너스',
+            price: '9,900원',
+            desc: '4단계 풀강 및 최종 5단계 만렙(48,000G) 핵심 부위 직행',
+            popular: true,
+            color: '#fbbf24'
+          },
+          {
+            id: 'vault',
+            name: '은하계 중앙 금고',
+            gold: 220000,
+            baseGold: '150,000 G',
+            bonus: '+45% 파격 보너스',
+            price: '25,000원',
+            desc: '격납고 전 항목 풀강(34.7만 G)의 65% 이상을 단숨에 완성',
+            popular: false,
+            color: '#a855f7'
+          }
+        ];
+
+        goldPacks.forEach(pack => {
+          const card = document.createElement('div');
+          card.className = 'gold-pack-card ' + (pack.popular ? 'popular' : '');
+          card.innerHTML = `
+            ${pack.popular ? '<div style="position: absolute; top: -10px; right: 14px; background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; font-size: 9.5px; font-weight: 900; padding: 2px 8px; border-radius: 6px; box-shadow: 0 0 10px rgba(239, 68, 68, 0.7);">🔥 가장 인기</div>' : ''}
+            <div>
+              <div style="font-size: 14px; font-weight: 800; color: ${pack.color}; margin-bottom: 4px;">${pack.name}</div>
+              <div style="font-size: 22px; font-weight: 900; color: #fde047; font-family: monospace; line-height: 1.1;">
+                ${pack.gold.toLocaleString()} G
+              </div>
+              <div style="font-size: 10.5px; color: #34d399; font-weight: 700; margin-top: 2px;">
+                기본 ${pack.baseGold} (${pack.bonus})
+              </div>
+              <div style="font-size: 11px; color: #94a3b8; margin-top: 6px; line-height: 1.3;">
+                ${pack.desc}
+              </div>
+            </div>
+            <button class="btn btn-gold-pack" data-pack="${pack.id}" data-gold="${pack.gold}" data-price="${pack.price}" style="width: 100%; font-size: 13.5px; padding: 9px; background: linear-gradient(135deg, rgba(2, 132, 199, 0.4) 0%, rgba(56, 189, 248, 0.25) 100%); border: 1.5px solid ${pack.color}; color: #f8fafc; font-weight: 800;">
+              💎 ${pack.price} 결제
+            </button>
+          `;
+          goldGrid.appendChild(card);
+        });
+
+        this.hangarShopContainer.appendChild(goldGrid);
+
+        // Bind events inside Shop
+        const buyVipBtn = document.getElementById('btn-buy-vip');
+        if (buyVipBtn) {
+          buyVipBtn.addEventListener('click', () => this.purchaseVip());
+        }
+
+        const dailyAdBtn = document.getElementById('btn-claim-daily-ad');
+        if (dailyAdBtn) {
+          dailyAdBtn.addEventListener('click', () => this.claimDailyAdSupply());
+        }
+
+        const packBtns = this.hangarShopContainer.querySelectorAll('.btn-gold-pack');
+        packBtns.forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            const gold = parseInt(e.currentTarget.getAttribute('data-gold'), 10);
+            const price = e.currentTarget.getAttribute('data-price');
+            this.purchaseGoldPack(gold, price);
+          });
+        });
+      }
+
+      purchaseVip() {
+        if (this.isVipUser) return;
+        this.isVipUser = true;
+        this.gold = (this.gold || 0) + 5000;
+        this.stats.totalCoins = (this.stats.totalCoins || 0) + 5000;
+        this.saveGameData();
+        this.updateGoldHUD();
+        this.updateLivesHUD();
+        this.renderHangarUI();
+        sounds.playVictory();
+        this.shake(12, 16);
+        this.floatingTexts.push(new FloatingText(WIDTH / 2, HEIGHT / 2 - 40, '👑 VIP 올인원 패키지 영구 활성화! (+5,000G)', '#fbbf24', 18));
+      }
+
+      claimDailyAdSupply() {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        if (this.lastAdSupplyDate !== todayStr) {
+          this.dailyAdSupplies = 0;
+          this.lastAdSupplyDate = todayStr;
+        }
+        if (this.dailyAdSupplies >= 3) {
+          return;
+        }
+
+        const grantReward = () => {
+          this.dailyAdSupplies = (this.dailyAdSupplies || 0) + 1;
+          this.gold = (this.gold || 0) + 800;
+          this.stats.totalCoins = (this.stats.totalCoins || 0) + 800;
+          this.saveGameData();
+          this.updateGoldHUD();
+          this.renderHangarUI();
+          sounds.playCoin();
+          this.floatingTexts.push(new FloatingText(WIDTH / 2, HEIGHT / 2 - 40, `🪙 일일 비상 자금 +800G 보급 완료! (${3 - this.dailyAdSupplies}회 남음)`, '#34d399', 16));
+        };
+
+        if (this.isVipUser) {
+          grantReward();
+        } else {
+          this.simulateAdMobVideo('🎬 사령부 비상 보급 광고 시청 중... (+800 G)', () => {
+            grantReward();
+          });
+        }
+      }
+
+      purchaseGoldPack(goldAmount, priceStr) {
+        this.gold = (this.gold || 0) + goldAmount;
+        this.stats.totalCoins = (this.stats.totalCoins || 0) + goldAmount;
+        this.saveGameData();
+        this.updateGoldHUD();
+        this.renderHangarUI();
+        sounds.playVictory();
+        this.floatingTexts.push(new FloatingText(WIDTH / 2, HEIGHT / 2 - 40, `💎 +${goldAmount.toLocaleString()}G 결제 충전 완료!`, '#ffd700', 18));
+      }
+
+      purchaseEmergencyPack() {
+        if (this.emergencyPackPurchased) return;
+        this.emergencyPackPurchased = true;
+        this.gold = (this.gold || 0) + 15000;
+        this.stats.totalCoins = (this.stats.totalCoins || 0) + 15000;
+        this.saveGameData();
+        this.updateGoldHUD();
+        sounds.playVictory();
+        const rescueCard = document.getElementById('gameover-emergency-rescue');
+        if (rescueCard) {
+          rescueCard.innerHTML = `
+            <div style="color: #34d399; font-size: 13.5px; font-weight: 800; text-align: center; padding: 10px;">
+              ✅ 전선 긴급 구원 보급 완료! (+15,000 G 즉시 수령됨)<br>
+              <span style="font-size: 11.5px; color: #94a3b8;">격납고에서 화력과 쉴드를 업그레이드하고 다시 도전하세요!</span>
+            </div>
+          `;
+        }
+        this.floatingTexts.push(new FloatingText(WIDTH / 2, HEIGHT / 2 - 40, '🚨 전선 긴급 구원 보급금 +15,000G 수령 완료!', '#f59e0b', 18));
+      }
+
+      showReviveCountdown() {
+        this.state = 'REVIVE_COUNTDOWN';
+        sounds.stopBGM();
+        sounds.playWarning();
+
+        const modal = document.getElementById('revive-modal');
+        const timerCircle = document.getElementById('revive-timer-circle');
+        const adBtn = document.getElementById('revive-btn-watch-ad');
+        if (!modal || !timerCircle || !adBtn) {
+          this.gameOver();
+          return;
+        }
+
+        // Configure button for VIP vs Free Ad
+        if (this.isVipUser) {
+          adBtn.innerHTML = '👑 [VIP 프리패스] 즉시 무료 부활 (0초)';
+          adBtn.style.background = 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)';
+          adBtn.style.boxShadow = '0 0 25px rgba(251, 191, 36, 0.8)';
+          adBtn.style.color = '#050711';
+          adBtn.style.fontWeight = '900';
+        } else {
+          adBtn.innerHTML = '🎬 광고 시청하고 무료 부활';
+          adBtn.style.background = 'linear-gradient(135deg, #00f0ff 0%, #3b82f6 100%)';
+          adBtn.style.boxShadow = '0 0 25px rgba(0, 240, 255, 0.6)';
+          adBtn.style.color = '#ffffff';
+          adBtn.style.fontWeight = '800';
+        }
+
+        modal.classList.remove('hidden');
+
+        let secondsLeft = 5;
+        timerCircle.textContent = String(secondsLeft);
+
+        if (this.reviveCountdownInterval) {
+          clearInterval(this.reviveCountdownInterval);
+        }
+
+        this.reviveCountdownInterval = setInterval(() => {
+          secondsLeft--;
+          if (secondsLeft > 0) {
+            timerCircle.textContent = String(secondsLeft);
+            sounds.playLevelUp();
+          } else {
+            clearInterval(this.reviveCountdownInterval);
+            this.reviveCountdownInterval = null;
+            modal.classList.add('hidden');
+            this.gameOver();
+          }
+        }, 1000);
+      }
+
+      executeRevive(isVipInstant = false) {
+        if (this.reviveCountdownInterval) {
+          clearInterval(this.reviveCountdownInterval);
+          this.reviveCountdownInterval = null;
+        }
+        const modal = document.getElementById('revive-modal');
+        if (modal) modal.classList.add('hidden');
+
+        const doActualRevive = () => {
+          this.reviveUsedThisRun = true;
+          this.player.lives = this.isVipUser ? 4 : 3;
+          this.player.weaponLevel = Math.max(2, this.player.weaponLevel);
+          this.player.respawn(this);
+          this.player.shieldTimer = Math.max(240, this.getUpgradedShieldDuration() + 60); // 4초+ 초강력 보호막
+          this.bullets = this.bullets.filter(b => !b.isEnemy);
+          this.updateLivesHUD();
+          this.updateWeaponHUD();
+          this.shake(14, 18);
+          this.vibrate([40, 30, 60]);
+          sounds.playVictory();
+          sounds.setBGMTrack('set' + this.getSet());
+
+          this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 35, '⭐ 비상 전투 복구 완료! RECOVERED! ⭐', '#00f0ff', 18));
+          this.state = 'PLAYING';
+        };
+
+        if (isVipInstant || this.isVipUser) {
+          doActualRevive();
+        } else {
+          // Simulate 1.2s AdMob Rewarded Video
+          this.simulateAdMobVideo('🎬 보상형 광고 시청 중... (비상 부활 보상)', () => {
+            doActualRevive();
+          });
+        }
+      }
+
+      simulateAdMobVideo(title, onReward) {
+        const adModal = document.getElementById('admob-sim-modal');
+        const adTitle = document.getElementById('admob-sim-title');
+        const adProgress = document.getElementById('admob-sim-progress');
+        if (!adModal) {
+          onReward();
+          return;
+        }
+
+        if (adTitle) adTitle.textContent = title;
+        if (adProgress) adProgress.style.width = '0%';
+        adModal.style.display = 'flex';
+        adModal.classList.remove('hidden');
+
+        let pct = 0;
+        const interval = setInterval(() => {
+          pct += 10;
+          if (adProgress) adProgress.style.width = pct + '%';
+          if (pct >= 100) {
+            clearInterval(interval);
+            setTimeout(() => {
+              adModal.classList.add('hidden');
+              adModal.style.display = 'none';
+              onReward();
+            }, 120);
+          }
+        }, 80); // 약 0.8초 시뮬레이션
+      }
+
       buyUpgrade(key) {
         const cfg = HANGAR_UPGRADES[key];
         if (!cfg) return;
@@ -6497,6 +7098,7 @@
       resume() {
         if (this.state !== 'PAUSED') return;
         this.state = 'PLAYING';
+        this.reviveUsedThisRun = false;
         this.lastTime = performance.now();
         this.accumulator = 0;
         this.touchActive = false;
@@ -6950,6 +7552,7 @@
         } catch (e) {}
 
         this.state = 'PLAYING';
+        this.reviveUsedThisRun = false;
         this.lastTime = performance.now();
         this.accumulator = 0;
         this.score = 0;
@@ -7302,6 +7905,7 @@
         const nextSet = curSet + 1;
 
         this.state = 'PLAYING';
+        this.reviveUsedThisRun = false;
         this.stageIntermission = {
           active: true,
           isDeparture: true,
@@ -7364,12 +7968,35 @@
         this.finalDestroyed.textContent = this.enemiesDestroyed;
         this.finalBest.textContent = this.highScore;
         if (this.finalGold) this.finalGold.textContent = '+' + (this.runGold || 0).toLocaleString() + ' G';
+
+        // Check for Emergency Rescue Pack on Set 2+ death
+        const rescueCard = document.getElementById('gameover-emergency-rescue');
+        if (rescueCard) {
+          if (curSet >= 2 && !this.emergencyPackPurchased) {
+            rescueCard.classList.remove('hidden');
+          } else {
+            rescueCard.classList.add('hidden');
+          }
+        }
+
         this.gameoverScreen.classList.remove('hidden');
       }
 
       updateLivesHUD() {
-        for (let i = 1; i <= 3; i++) {
+        const heart4 = document.getElementById('heart-4');
+        const vipBadge = document.getElementById('hud-vip-badge');
+        if (this.isVipUser) {
+          if (heart4) heart4.classList.remove('hidden');
+          if (vipBadge) vipBadge.classList.remove('hidden');
+        } else {
+          if (heart4) heart4.classList.add('hidden');
+          if (vipBadge) vipBadge.classList.add('hidden');
+        }
+
+        const maxHearts = this.isVipUser ? 4 : 3;
+        for (let i = 1; i <= maxHearts; i++) {
           const heart = document.getElementById(`heart-${i}`);
+          if (!heart) continue;
           if (i <= this.player.lives) {
             heart.classList.remove('lost');
           } else {
@@ -7587,6 +8214,40 @@
           bindButtonAction('hangar-tab-btn-achievements', () => {
             this.hangarActiveTab = 'achievements';
             this.renderHangarUI();
+          });
+        }
+        if (this.hangarTabBtnShop) {
+          bindButtonAction('hangar-tab-btn-shop', () => {
+            this.hangarActiveTab = 'shop';
+            this.renderHangarUI();
+          });
+        }
+
+        // Revive Modal Event Listeners
+        const reviveAdBtn = document.getElementById('revive-btn-watch-ad');
+        if (reviveAdBtn) {
+          bindButtonAction('revive-btn-watch-ad', () => {
+            this.executeRevive(!!this.isVipUser);
+          });
+        }
+        const reviveCancelBtn = document.getElementById('revive-btn-cancel');
+        if (reviveCancelBtn) {
+          bindButtonAction('revive-btn-cancel', () => {
+            if (this.reviveCountdownInterval) {
+              clearInterval(this.reviveCountdownInterval);
+              this.reviveCountdownInterval = null;
+            }
+            const modal = document.getElementById('revive-modal');
+            if (modal) modal.classList.add('hidden');
+            this.gameOver();
+          });
+        }
+
+        // Emergency Rescue Pack Button Listener on Game Over Screen
+        const rescueBuyBtn = document.getElementById('btn-buy-emergency-pack');
+        if (rescueBuyBtn) {
+          bindButtonAction('btn-buy-emergency-pack', () => {
+            this.purchaseEmergencyPack();
           });
         }
 
@@ -8095,7 +8756,7 @@
         // Update & Collide Gold Coins (Magnet pull & collection)
         for (let i = this.coins.length - 1; i >= 0; i--) {
           const coin = this.coins[i];
-          coin.update(this.player, isIntermission);
+          coin.update(this.player, isIntermission, !!this.isVipUser);
 
           const cb = coin.getBounds();
           if (
@@ -8512,7 +9173,11 @@
         this.updateWeaponHUD();
 
         if (this.player.lives <= 0) {
-          this.gameOver();
+          if (!this.reviveUsedThisRun) {
+            this.showReviveCountdown();
+          } else {
+            this.gameOver();
+          }
         } else {
           this.player.respawn(this);
           this.bullets = this.bullets.filter(b => !b.isEnemy);
