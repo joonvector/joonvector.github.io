@@ -1372,54 +1372,54 @@
     </div>
 
     <!-- Step 2: Smartphone Touch Controls Guide Screen (Shown after tapping Game Start) -->
-    <div id="guide-screen" class="screen-overlay hidden" style="background: rgba(4, 7, 18, 0.94); backdrop-filter: blur(12px);">
-      <div style="font-size: 11px; font-weight: 800; color: #38bdf8; letter-spacing: 2px; margin-bottom: 2px;">
-        PILOT TACTICAL BRIEFING
+    <!-- Pilot Tactical Briefing & Sector Select Overlay (Compact No-Scroll Design) -->
+    <div id="guide-screen" class="screen-overlay hidden" style="background: rgba(4, 7, 18, 0.94); backdrop-filter: blur(14px); padding: 12px 16px;">
+      <!-- 1. Header (Compact) -->
+      <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 6px;">
+        <div style="font-size: 10px; font-weight: 900; color: #38bdf8; letter-spacing: 2.5px; text-transform: uppercase; background: rgba(56, 189, 248, 0.12); padding: 2px 10px; border-radius: 20px; border: 1px solid rgba(56, 189, 248, 0.3); margin-bottom: 2px;">
+          PILOT TACTICAL BRIEFING
+        </div>
+        <h2 class="title" style="font-size: 20px; margin-bottom: 0; font-weight: 900; color: #ffffff; text-shadow: 0 0 14px rgba(0, 240, 255, 0.6);">
+          출격 작전 브리핑 & 구역 선택
+        </h2>
       </div>
-      <h2 class="title" style="font-size: 30px; margin-bottom: 4px;">스마트폰 조작 가이드</h2>
-      <p class="subtitle" style="margin-bottom: 12px; font-size: 12.5px;">
-        손가락 터치 하나로 이동부터 필살기까지 직관적으로 조종하세요!
-      </p>
 
-      <div class="controls-guide" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-width: 680px; width: 96%; padding: 14px 16px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(56, 189, 248, 0.35); border-radius: 14px; margin-bottom: 12px;">
-        <div class="control-item" style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(56, 189, 248, 0.2); flex-direction: column; align-items: flex-start; gap: 5px;">
-          <span class="key-badge" style="background: rgba(0, 240, 255, 0.15); border-color: #00f0ff; color: #00f0ff;">👆 화면 터치 & 드래그</span>
-          <span style="color: #e2e8f0; font-size: 12px; line-height: 1.4;">손가락을 따라 <strong>기체 이동 & 레이저 자동 연사</strong></span>
+      <!-- 2. Sector Selector (Primary Feature - 상단 전면 배치) -->
+      <div class="set-selector-panel" id="guide-set-selector" style="max-width: 780px; width: 98%; padding: 8px 12px; margin-bottom: 8px; background: rgba(15, 23, 42, 0.78);">
+        <div class="set-selector-header" style="margin-bottom: 6px;">
+          <span style="font-size: 12px; font-weight: 900; color: #38bdf8; display: flex; align-items: center; gap: 4px;">🌌 작전 출격 구역 (SECTOR SELECT)</span>
+          <span style="font-size: 10.5px; color: #94a3b8; font-weight: 600;">(원하는 구역을 터치하여 즉시 출격 • 상위 구역 기본 무기 보정)</span>
         </div>
-
-        <div class="control-item" style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(168, 85, 247, 0.3); flex-direction: column; align-items: flex-start; gap: 5px;">
-          <span class="key-badge" style="background: rgba(168, 85, 247, 0.18); border-color: #c084fc; color: #e879f9;">⚡ 터치 유지 후 손 떼기</span>
-          <span style="color: #e2e8f0; font-size: 12px; line-height: 1.4;">에너지 충전 완료 후 손을 떼면 <strong>관통 차지 레이저 발사</strong></span>
-        </div>
-
-        <div class="control-item" style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(251, 191, 36, 0.3); flex-direction: column; align-items: flex-start; gap: 5px;">
-          <span class="key-badge" style="background: rgba(251, 191, 36, 0.18); border-color: #fbbf24; color: #fde047;">🔥 우하단 [EX] 버튼 터치</span>
-          <span style="color: #e2e8f0; font-size: 12px; line-height: 1.4;">EX 게이지 100% 시 <strong>3초 무적 하이퍼 메가 빔</strong> 발동</span>
-        </div>
-
-        <div class="control-item" style="background: rgba(255,255,255,0.03); padding: 10px 12px; border-radius: 10px; border: 1px solid rgba(239, 68, 68, 0.3); flex-direction: column; align-items: flex-start; gap: 5px;">
-          <span class="key-badge" style="background: rgba(239, 68, 68, 0.18); border-color: #f87171; color: #fca5a5;">💣 우하단 [BOMB] 버튼 터치</span>
-          <span style="color: #e2e8f0; font-size: 12px; line-height: 1.4;">위기 시 <strong>화면 전체 적 탄막 즉시 소멸 & 전체 타격</strong></span>
+        <div class="set-pills-row" id="guide-set-pills" style="margin-bottom: 6px;"></div>
+        <div class="set-selector-desc" id="guide-set-desc" style="font-size: 11.5px; color: #ffd700; font-weight: 800; background: rgba(0, 0, 0, 0.35); padding: 3px 14px; border-radius: 20px; border: 1px solid rgba(251, 191, 36, 0.3);">
+          SET 1: 네온 사이안 성운 (Lv.1~10)
         </div>
       </div>
 
-      <p class="level-tip" style="font-size: 12px; color: #fbbf24; margin-bottom: 10px; font-weight: bold; text-align: center;">
-        ⭐ 각 구역 10레벨마다 거대 보스 출현! 우측 상단 [⏸️ 정지] 버튼으로 언제든 휴식 및 기체 정비 가능
-      </p>
-
-      <!-- Sector Checkpoint Selector on Guide Screen -->
-      <div class="set-selector-panel" id="guide-set-selector">
-        <div class="set-selector-header">
-          <span>🌌 출격 구역(SET) 선택</span>
-          <span style="font-size: 10px; color: #94a3b8; font-weight: 600;">(클리어한 구역 및 현재 구역 자유 선택)</span>
+      <!-- 3. Controls Guide (1-Row Slim Chips - 가로 1행 4개 슬림 칩) -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-width: 780px; width: 98%; margin-bottom: 10px;">
+        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 5px 6px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px;">
+          <span style="font-size: 10.5px; font-weight: 900; padding: 1px 6px; border-radius: 5px; background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.4);">👆 터치 & 드래그</span>
+          <span style="font-size: 10px; color: #cbd5e1; font-weight: 600;">기체 이동 & 자동 사격</span>
         </div>
-        <div class="set-pills-row" id="guide-set-pills"></div>
-        <div class="set-selector-desc" id="guide-set-desc">SET 1: 네온 사이안 성운 (Lv.1~10)</div>
+        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 5px 6px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px;">
+          <span style="font-size: 10.5px; font-weight: 900; padding: 1px 6px; border-radius: 5px; background: rgba(168, 85, 247, 0.18); color: #e879f9; border: 1px solid rgba(168, 85, 247, 0.4);">⚡ 터치 후 손 떼기</span>
+          <span style="font-size: 10px; color: #cbd5e1; font-weight: 600;">관통 차지 레이저 발사</span>
+        </div>
+        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 5px 6px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px;">
+          <span style="font-size: 10.5px; font-weight: 900; padding: 1px 6px; border-radius: 5px; background: rgba(251, 191, 36, 0.18); color: #fde047; border: 1px solid rgba(251, 191, 36, 0.4);">🔥 [EX] 버튼 터치</span>
+          <span style="font-size: 10px; color: #cbd5e1; font-weight: 600;">3초 무적 하이퍼 메가빔</span>
+        </div>
+        <div style="background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 5px 6px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px;">
+          <span style="font-size: 10.5px; font-weight: 900; padding: 1px 6px; border-radius: 5px; background: rgba(239, 68, 68, 0.18); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4);">💣 [BOMB] 버튼</span>
+          <span style="font-size: 10px; color: #cbd5e1; font-weight: 600;">전탄 소멸 & 광역 폭격</span>
+        </div>
       </div>
 
-      <div style="display: flex; gap: 10px; width: 100%; max-width: 480px; justify-content: center; flex-wrap: nowrap;">
-        <button id="start-btn" class="btn" style="flex: 2; white-space: nowrap; animation: startBtnPulse 2s infinite;">⚡ 출격 개시 (MISSION START)</button>
-        <button id="guide-back-btn" class="btn btn-secondary" style="flex: 1; white-space: nowrap; font-size: 13px; padding: 10px 16px;">← 타이틀로</button>
+      <!-- 4. Launch Buttons (Bottom & Prominent) -->
+      <div style="display: flex; gap: 10px; width: 100%; max-width: 500px; justify-content: center; flex-wrap: nowrap;">
+        <button id="start-btn" class="btn" style="flex: 2; white-space: nowrap; font-size: 15px; padding: 10px 20px; animation: startBtnPulse 2s infinite;">⚡ 출격 개시 (MISSION START)</button>
+        <button id="guide-back-btn" class="btn btn-secondary" style="flex: 1; white-space: nowrap; font-size: 13px; padding: 10px 14px;">← 타이틀로</button>
       </div>
     </div>
 
@@ -4339,11 +4339,11 @@
         this.hitFlashTimer = 0;
 
         // 세트(1~5세트)별 적기 체력(HP) 단계적 스케일링
-        // 1세트는 입문용으로 낮게 유지하되, 2세트부터는 무기 레벨업을 견디고 화면 안으로 진입하여 교전하도록 체력 강화
+        // 1세트는 입문용으로 낮게 유지하되, 2~3세트부터는 아군 화력 증가에 맞춰 충분히 교전하도록 체력과 공격성을 탄탄히 보강
         const curSet = Math.min(5, Math.max(1, Math.ceil((level || 1) / 10)));
-        const scoutHpTable = [1, 2, 3, 4, 6];
-        const hunterHpTable = [1, 3, 5, 7, 9];
-        const dreadHpTable = [4, 7, 10, 14, 18];
+        const scoutHpTable = [1, 3, 5, 7, 9];
+        const hunterHpTable = [1, 5, 8, 11, 14];
+        const dreadHpTable = [4, 10, 15, 20, 26];
 
         if (this.type === 'scout') {
           this.width = 50;
@@ -4414,9 +4414,9 @@
 
         // Set 1 has a relaxed fire rate (+35% longer interval) for beginner onboarding;
         // Set 2+ steps up noticeably so surviving enemies actively engage the player
-        const setIntervalScale = [1.35, 0.96, 0.86, 0.78, 0.72][curSet - 1] || 1.0;
-        const subReduction = (subLvl - 1) * (curSet === 1 ? 2.2 : 3.0);
-        const minInterval = [58, 42, 36, 32, 28][curSet - 1] || 28;
+        const setIntervalScale = [1.35, 0.88, 0.78, 0.70, 0.65][curSet - 1] || 1.0;
+        const subReduction = (subLvl - 1) * (curSet === 1 ? 2.2 : 3.2);
+        const minInterval = [58, 38, 32, 28, 24][curSet - 1] || 24;
         const effectiveInterval = Math.max(minInterval, Math.round(this.shootInterval * setIntervalScale - subReduction));
 
         this.shootTimer++;
@@ -4425,7 +4425,7 @@
           sounds.playEnemyShoot();
 
           if (this.type === 'dreadnought') {
-            const dSpd = curSet === 1 ? -6.0 : -6.6 - (curSet - 2) * 0.35;
+            const dSpd = curSet === 1 ? -6.0 : -6.8 - (curSet - 2) * 0.40;
             bullets.push(new Bullet(this.x - this.width / 2, this.y - 9, dSpd, -0.85, true, this.bulletColor));
             bullets.push(new Bullet(this.x - this.width / 2, this.y + 9, dSpd, 0.85, true, this.bulletColor));
             // 2세트(11레벨)부터 중장갑함 3갈래 탄막 해금
@@ -4437,21 +4437,21 @@
             const dx = player.x - this.x;
             const dy = player.y - this.y;
             const dist = Math.sqrt(dx * dx + dy * dy) || 1;
-            // 회피 공간 확보를 위해 탄속은 과도하게 빨라지지 않도록 적정 범위(5.0 ~ 7.2) 유지
-            const baseSpd = curSet === 1 ? 5.0 : (5.5 + (curSet - 2) * 0.45);
-            const bulletSpeed = baseSpd + (subLvl - 1) * 0.06;
+            // 2~3세트 탄속 상향 (Set 1: 5.0, Set 2: 6.2, Set 3: 6.6, Set 4: 7.1, Set 5: 7.6)
+            const baseSpd = curSet === 1 ? 5.0 : (curSet === 2 ? 6.2 : (6.6 + (curSet - 3) * 0.50));
+            const bulletSpeed = baseSpd + (subLvl - 1) * 0.08;
             const vx = (dx / dist) * bulletSpeed;
             const vy = (dy / dist) * bulletSpeed;
 
             bullets.push(new Bullet(this.x - this.width / 2, this.y, vx, vy, true, this.bulletColor));
 
-            // 2세트(11레벨)부터 추격기(Hunter) 2연발 해금 (단, 피할 공간 확보를 위해 위아래 간격을 넓게 배치)
+            // 2세트(11레벨)부터 추격기(Hunter) 2연발 조준 사격 해금 (살짝 벌어지는 탄막으로 회피 유도)
             if (curSet >= 2 && this.type === 'hunter' && subLvl >= 3) {
-              bullets.push(new Bullet(this.x - this.width / 2, this.y - 8, -(bulletSpeed + 0.3), 0, true, this.bulletColor));
+              bullets.push(new Bullet(this.x - this.width / 2, this.y - 10, vx, vy - 0.7, true, this.bulletColor));
             }
             // 3세트(21레벨)부터 정찰기(Scout)도 후반 레벨에서 2연발 가세
             if (curSet >= 3 && this.type === 'scout' && subLvl >= 4) {
-              bullets.push(new Bullet(this.x - this.width / 2, this.y - 6, -(bulletSpeed + 0.4), 0, true, this.bulletColor));
+              bullets.push(new Bullet(this.x - this.width / 2, this.y + 8, vx, vy + 0.7, true, this.bulletColor));
             }
           }
         }
@@ -4663,10 +4663,11 @@
           return;
         }
 
-        // Vertical floating movement
-        const targetY = HEIGHT / 2 + Math.sin(this.time * 1.3) * (HEIGHT * 0.28);
+        // Vertical floating movement (Set 2 moves in a wider range to eliminate safe spots)
+        const yAmplitude = (this.setNumber === 2) ? 0.33 : 0.28;
+        const targetY = HEIGHT / 2 + Math.sin(this.time * 1.3) * (HEIGHT * yAmplitude);
         this.y += (targetY - this.y) * 0.06;
-        this.y = Math.max(90, Math.min(HEIGHT - 90, this.y));
+        this.y = Math.max(75, Math.min(HEIGHT - 75, this.y));
 
         // Continuous rear engine thruster particle emissions
         if (this.entered && !this.isDying && Math.random() < 0.75) {
@@ -4707,20 +4708,33 @@
             }
             break;
 
-          case 'inferno_dreadnought': // Set 2: Blaze Behemoth (체력 1400 유지, 미사일 발사량 약 75~80%로 완화 및 회피 통로 확보)
+          case 'inferno_dreadnought': // Set 2: Blaze Behemoth (체력 1400 유지, 화면 하단 사각지대 완전 봉쇄: 실시간 조준탄 + 5갈래 광각 확산탄)
+            // 1. 주포 트윈 화염탄 직사
             if (this.attackTimer % 48 === 0 || this.attackTimer % 48 === 10) {
               sounds.playEnemyShoot();
               bullets.push(new Bullet(this.x - 90, this.y - 32, -7.4, 0, true, this.bulletColor));
               bullets.push(new Bullet(this.x - 90, this.y + 32, -7.4, 0, true, this.bulletColor));
             }
+            // 2. [사각지대 제거 핵심] 플레이어 실시간 위치 정밀 조준탄 (화면 하단/구석 잠수 시 직격탄)
+            if (this.attackTimer % 72 === 0) {
+              sounds.playEnemyShoot();
+              const dx = player.x - this.x;
+              const dy = player.y - this.y;
+              const dist = Math.sqrt(dx * dx + dy * dy) || 1;
+              const snipeSpd = 7.4;
+              bullets.push(new Bullet(this.x - 75, this.y - 12, (dx / dist) * snipeSpd, (dy / dist) * snipeSpd, true, '#ff4500'));
+              bullets.push(new Bullet(this.x - 75, this.y + 12, (dx / dist) * snipeSpd, (dy / dist) * snipeSpd, true, '#ff4500'));
+            }
+            // 3. 5갈래 광각 화염 확산탄 (기존 3갈래 ±17도 ➔ 5갈래 ±30도 와이드 부채꼴로 확장하여 상하단 구석 커버)
             if (this.attackTimer % 115 === 0) {
               sounds.playEnemyShoot();
-              [-0.30, 0, 0.30].forEach(ang => {
+              [-0.52, -0.26, 0, 0.26, 0.52].forEach(ang => {
                 bullets.push(new Bullet(this.x - 70, this.y, Math.cos(Math.PI + ang) * 6.8, Math.sin(Math.PI + ang) * 6.8, true, '#f97316'));
               });
             }
-            if (isEnraged && this.attackTimer % 90 === 0) {
-              [-0.34, 0, 0.34].forEach(ang => {
+            // 4. 분노 시 폭주 와이드 탄막 + 가속 조준탄
+            if (isEnraged && this.attackTimer % 80 === 0) {
+              [-0.56, -0.28, 0, 0.28, 0.56].forEach(ang => {
                 bullets.push(new Bullet(this.x - 65, this.y, Math.cos(Math.PI + ang) * 7.2, Math.sin(Math.PI + ang) * 7.2, true, '#ff0055'));
               });
             }
@@ -5021,7 +5035,7 @@
         enName: 'Plasma Firepower',
         icon: '⚡',
         maxLevel: 5,
-        costs: [600, 1800, 5500, 16000, 45000],
+        costs: [900, 2400, 6500, 18000, 48000],
         values: [1.0, 1.2, 1.4, 1.6, 1.8, 2.0],
         formatVal: (v) => `${v.toFixed(2)}x 공격력`,
         desc: '주인공 요격기의 플라즈마 레이저 위력을 단계별로 높여 적과 보스를 빠르게 격추합니다.'
@@ -5031,7 +5045,7 @@
         enName: 'Sub-light Thrusters',
         icon: '🚀',
         maxLevel: 5,
-        costs: [500, 1500, 4500, 13000, 36000],
+        costs: [800, 2000, 5500, 15000, 40000],
         values: [5.5, 5.9, 6.3, 6.7, 7.1, 7.5],
         formatVal: (v) => `${v.toFixed(1)} px/f 속도`,
         desc: '기체 추진력을 향상시켜 이동 속도와 탄막 회피 반응성을 높입니다.'
@@ -5041,7 +5055,7 @@
         enName: 'Nano Energy Shield',
         icon: '🛡️',
         maxLevel: 5,
-        costs: [600, 1800, 5500, 16000, 45000],
+        costs: [900, 2400, 6500, 18000, 48000],
         values: [3.0, 3.5, 4.0, 4.5, 5.0, 5.5],
         formatVal: (v) => `${v.toFixed(1)}초 무적 보호막`,
         desc: '쉴드([S]) 아이템 획득 및 출격/리스폰 시 유지되는 무적 보호막 지속 시간을 연장합니다 (3.0초 ➔ 5.5초).'
@@ -5051,7 +5065,7 @@
         enName: 'Bomb Bays Expansion',
         icon: '💣',
         maxLevel: 3,
-        costs: [1200, 5000, 20000],
+        costs: [1500, 6000, 22000],
         values: [2, 3, 4, 5],
         formatVal: (v) => `최대 ${v}발 저장 (Max ${v})`,
         desc: '전투 중 폭탄([B]) 아이템을 획득했을 때 저장할 수 있는 최대 폭탄 보유 한도(Max 2발 ➔ 5발)를 확장합니다.'
@@ -5061,7 +5075,7 @@
         enName: 'Hyper Reactor Core',
         icon: '🔥',
         maxLevel: 5,
-        costs: [500, 1500, 4500, 13000, 36000],
+        costs: [800, 2000, 5500, 15000, 40000],
         values: [1.0, 1.2, 1.4, 1.6, 1.8, 2.0],
         formatVal: (v) => `${v.toFixed(2)}x 충전 속도`,
         desc: '적 격추 및 타격 시 결전 필살기(EX HYPER BEAM)의 게이지 충전율을 2배까지 가속합니다.'
@@ -5079,7 +5093,7 @@
         tier: 'bronze',
         medal: '🥉',
         target: 1,
-        reward: 100,
+        reward: 50,
         getProgress: (g) => g.stats.totalKills || 0,
         formatProgress: (v, t) => `${Math.min(v, t)} / ${t} 기`
       },
@@ -5090,7 +5104,7 @@
         tier: 'bronze',
         medal: '🥉',
         target: 50,
-        reward: 150,
+        reward: 100,
         getProgress: (g) => g.stats.totalKills || 0,
         formatProgress: (v, t) => `${Math.min(v, t)} / ${t} 기`
       },
@@ -5101,7 +5115,7 @@
         tier: 'silver',
         medal: '🥈',
         target: 200,
-        reward: 600,
+        reward: 400,
         getProgress: (g) => g.stats.totalKills || 0,
         formatProgress: (v, t) => `${Math.min(v, t)} / ${t} 기`
       },
@@ -5112,7 +5126,7 @@
         tier: 'gold',
         medal: '🥇',
         target: 500,
-        reward: 3000,
+        reward: 2000,
         getProgress: (g) => g.stats.totalKills || 0,
         formatProgress: (v, t) => `${Math.min(v, t)} / ${t} 기`
       },
@@ -5120,10 +5134,10 @@
         id: 'first_boss',
         name: '거대 모선의 침몰',
         desc: '성운 수호자 등 구역 거대 보스를 최초로 격침하세요.',
-        tier: 'silver',
-        medal: '🥈',
+        tier: 'bronze',
+        medal: '🥉',
         target: 1,
-        reward: 300,
+        reward: 200,
         getProgress: (g) => g.stats.bossesDefeated || 0,
         formatProgress: (v, t) => `${Math.min(v, t)} / ${t} 회`
       },
@@ -5134,7 +5148,7 @@
         tier: 'gold',
         medal: '🥇',
         target: 5,
-        reward: 2500,
+        reward: 2000,
         getProgress: (g) => g.stats.bossesDefeated || 0,
         formatProgress: (v, t) => `${Math.min(v, t)} / ${t} 회`
       },
@@ -5145,7 +5159,7 @@
         tier: 'plat',
         medal: '🏆',
         target: 1,
-        reward: 2000,
+        reward: 600,
         getProgress: (g) => g.stats.noHitBossClears || 0,
         formatProgress: (v, t) => (v >= t ? '달성 완료!' : '미달성')
       },
@@ -5156,7 +5170,7 @@
         tier: 'bronze',
         medal: '🥉',
         target: 1000,
-        reward: 300,
+        reward: 200,
         getProgress: (g) => g.stats.totalCoins || 0,
         formatProgress: (v, t) => `${Math.min(v, t).toLocaleString()} / ${t.toLocaleString()} G`
       },
@@ -5167,7 +5181,7 @@
         tier: 'plat',
         medal: '🏆',
         target: 25000,
-        reward: 8000,
+        reward: 6000,
         getProgress: (g) => g.stats.totalCoins || 0,
         formatProgress: (v, t) => `${Math.min(v, t).toLocaleString()} / ${t.toLocaleString()} G`
       },
@@ -5178,7 +5192,7 @@
         tier: 'silver',
         medal: '🥈',
         target: 30000,
-        reward: 500,
+        reward: 300,
         getProgress: (g) => Math.max(g.score || 0, g.highScore || 0, (g.stats && g.stats.highScore) || 0),
         formatProgress: (v, t) => `${Math.min(v, t).toLocaleString()} / ${t.toLocaleString()} 점`
       },
@@ -5189,7 +5203,7 @@
         tier: 'plat',
         medal: '🏆',
         target: 100000,
-        reward: 4000,
+        reward: 3000,
         getProgress: (g) => Math.max(g.score || 0, g.highScore || 0, (g.stats && g.stats.highScore) || 0),
         formatProgress: (v, t) => `${Math.min(v, t).toLocaleString()} / ${t.toLocaleString()} 점`
       },
@@ -5200,7 +5214,7 @@
         tier: 'silver',
         medal: '🥈',
         target: 5,
-        reward: 350,
+        reward: 200,
         getProgress: (g) => g.stats.hyperUsed || 0,
         formatProgress: (v, t) => `${Math.min(v, t)} / ${t} 회`
       },
@@ -5211,9 +5225,64 @@
         tier: 'bronze',
         medal: '🥉',
         target: 10,
-        reward: 250,
+        reward: 150,
         getProgress: (g) => g.stats.bombsUsed || 0,
         formatProgress: (v, t) => `${Math.min(v, t)} / ${t} 회`
+      },
+      {
+        id: 'sector_1_clear',
+        name: '제1구역 정복 (Set 1 Cleared)',
+        desc: '제1구역 아쿠아 모선을 격침하고 제2구역(Lv.11)으로 진입하세요.',
+        tier: 'bronze',
+        medal: '🥉',
+        target: 11,
+        reward: 400,
+        getProgress: (g) => Math.max(g.level || 1, (g.stats && g.stats.maxLevelReached) || 1),
+        formatProgress: (v, t) => (v >= t ? '구역 정복 완료!' : `${Math.min(v, t)} / ${t} LV`)
+      },
+      {
+        id: 'sector_2_clear',
+        name: '제2구역 정복 (Set 2 Cleared)',
+        desc: '제2구역 작열의 베헤모스를 격침하고 제3구역(Lv.21)으로 진입하세요.',
+        tier: 'silver',
+        medal: '🥈',
+        target: 21,
+        reward: 1200,
+        getProgress: (g) => Math.max(g.level || 1, (g.stats && g.stats.maxLevelReached) || 1),
+        formatProgress: (v, t) => (v >= t ? '구역 정복 완료!' : `${Math.min(v, t)} / ${t} LV`)
+      },
+      {
+        id: 'sector_3_clear',
+        name: '제3구역 정복 (Set 3 Cleared)',
+        desc: '제3구역 비취 톡신 퀸을 격침하고 제4구역(Lv.31)으로 진입하세요.',
+        tier: 'gold',
+        medal: '🥇',
+        target: 31,
+        reward: 2500,
+        getProgress: (g) => Math.max(g.level || 1, (g.stats && g.stats.maxLevelReached) || 1),
+        formatProgress: (v, t) => (v >= t ? '구역 정복 완료!' : `${Math.min(v, t)} / ${t} LV`)
+      },
+      {
+        id: 'sector_4_clear',
+        name: '제4구역 정복 (Set 4 Cleared)',
+        desc: '제4구역 황금 펄서 요새를 함락하고 최종 결전지(Lv.41)에 진입하세요.',
+        tier: 'plat',
+        medal: '🏆',
+        target: 41,
+        reward: 6000,
+        getProgress: (g) => Math.max(g.level || 1, (g.stats && g.stats.maxLevelReached) || 1),
+        formatProgress: (v, t) => (v >= t ? '구역 정복 완료!' : `${Math.min(v, t)} / ${t} LV`)
+      },
+      {
+        id: 'galaxy_savior',
+        name: '은하의 구원자 (Galaxy Savior)',
+        desc: '최종 결전 50레벨을 돌파하여 전 우주를 외계 침략으로부터 해방하세요.',
+        tier: 'cosmic',
+        medal: '👑',
+        target: 50,
+        reward: 15000,
+        getProgress: (g) => Math.max(g.level || 1, (g.stats && g.stats.maxLevelReached) || 1),
+        formatProgress: (v, t) => (v >= t ? '은하 구원 완료!' : `${Math.min(v, t)} / ${t} LV`)
       },
       {
         id: 'hangar_specialist',
@@ -5222,7 +5291,7 @@
         tier: 'gold',
         medal: '🥇',
         target: 1,
-        reward: 5000,
+        reward: 4000,
         getProgress: (g) => Object.keys(HANGAR_UPGRADES).filter(k => (g.upgrades[k] || 0) >= HANGAR_UPGRADES[k].maxLevel).length,
         formatProgress: (v, t) => `${Math.min(v, t)} / ${t} 개`
       },
@@ -5236,28 +5305,6 @@
         reward: 20000,
         getProgress: (g) => Object.keys(HANGAR_UPGRADES).filter(k => (g.upgrades[k] || 0) >= HANGAR_UPGRADES[k].maxLevel).length,
         formatProgress: (v, t) => `${Math.min(v, t)} / ${t} 개`
-      },
-      {
-        id: 'deep_space_explorer',
-        name: '심우주 개척자 (Lv.25)',
-        desc: '25레벨(제3구역 비취 소행성대 돌파) 이상 도달하세요.',
-        tier: 'silver',
-        medal: '🥈',
-        target: 25,
-        reward: 1500,
-        getProgress: (g) => Math.max(g.level || 1, (g.stats && g.stats.maxLevelReached) || 1),
-        formatProgress: (v, t) => `${Math.min(v, t)} / ${t} LV`
-      },
-      {
-        id: 'galaxy_savior',
-        name: '은하의 구원자 (Lv.50)',
-        desc: '최종 결전 50레벨(제5구역 암흑 사건지평선)에 도달하세요.',
-        tier: 'cosmic',
-        medal: '👑',
-        target: 50,
-        reward: 15000,
-        getProgress: (g) => Math.max(g.level || 1, (g.stats && g.stats.maxLevelReached) || 1),
-        formatProgress: (v, t) => `${Math.min(v, t)} / ${t} LV`
       }
     ];
 
@@ -8069,13 +8116,13 @@
         }
 
         // Enemy spawn logic (Paused during Boss battles & Stage Intermission)
-        // 1세트는 입문 장벽 완화를 위해 스폰 간격을 여유롭게(108~65프레임) 두고, 2세트부터는 상승한 무기 화력에 맞춰 출현 밀도를 확실히 높임
+        // 1세트는 입문 장벽 완화를 위해 스폰 간격을 여유롭게(108~65프레임) 유지하고, 2~3세트는 상승한 화력에 맞춰 교전 밀도를 단계적으로 강화
         if (!bossActive && !isIntermission) {
           this.enemySpawnTimer++;
           const subLvl = ((this.level - 1) % 10) + 1;
-          const baseIntervals = [108, 72, 62, 54, 46];
+          const baseIntervals = [108, 64, 54, 46, 40];
           const stepDrops     = [4.8, 3.8, 3.5, 3.2, 2.8];
-          const minIntervals  = [65,  42,  34,  28,  22];
+          const minIntervals  = [65,  36,  28,  24,  20];
 
           const setIdx = Math.max(0, Math.min(4, curSet - 1));
           const spawnInterval = Math.max(
@@ -8087,18 +8134,18 @@
             this.enemySpawnTimer = 0;
             this.spawnEnemy();
 
-            // 2기 동시 스폰 확률: 1세트는 후반(Lv.6~9)에만 18%로 낮게, 2~5세트는 38% -> 62%로 단계적 상승
+            // 2기 동시 스폰 확률: 1세트는 후반(Lv.6~9)에만 18%로 낮게, 2~5세트는 44% -> 68%로 단계적 상승
             const doubleSpawnChance = curSet === 1
               ? (subLvl >= 6 ? 0.18 : 0)
-              : (0.22 + curSet * 0.08);
+              : (0.28 + curSet * 0.08);
             if (Math.random() < doubleSpawnChance) {
               this.spawnEnemy();
             }
 
-            // 3기 동시 편대 스폰: 1세트는 미등장, 2세트 중반(Lv.15~)부터 단계적 등장
+            // 3기 동시 편대 스폰: 1세트는 미등장, 2세트 중반(Lv.14~) 22%, 3세트 30%로 강화
             const tripleSpawnChance = curSet === 1
               ? 0
-              : (curSet === 2 ? (subLvl >= 5 ? 0.16 : 0) : (curSet === 3 ? 0.24 : (curSet === 4 ? 0.32 : 0.42)));
+              : (curSet === 2 ? (subLvl >= 4 ? 0.22 : 0) : (curSet === 3 ? 0.30 : (curSet === 4 ? 0.38 : 0.46)));
             if (Math.random() < tripleSpawnChance) {
               this.spawnEnemy();
             }
