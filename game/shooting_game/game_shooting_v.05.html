@@ -164,8 +164,12 @@
       -webkit-overflow-scrolling: touch !important;
     }
 
+    .hidden {
+      display: none !important;
+    }
+
     .screen-overlay.hidden {
-      display: none;
+      display: none !important;
     }
 
     .title {
@@ -1592,7 +1596,7 @@
       </div>
 
       <!-- Emergency Rescue Pack Banner (Triggered strictly only on Set 2+ Death, below buttons) -->
-      <div id="gameover-emergency-rescue" class="hidden" style="width: 100%; max-width: 520px; background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(69, 10, 10, 0.95) 100%); border: 2px solid #f59e0b; border-radius: 14px; padding: 12px 16px; margin: 4px 0 16px 0; box-shadow: 0 0 28px rgba(245, 158, 11, 0.4); text-align: left; position: relative;">
+      <div id="gameover-emergency-rescue" class="hidden" style="display: none; width: 100%; max-width: 520px; background: linear-gradient(135deg, rgba(30, 27, 75, 0.95) 0%, rgba(15, 23, 42, 0.98) 50%, rgba(69, 10, 10, 0.95) 100%); border: 2px solid #f59e0b; border-radius: 14px; padding: 12px 16px; margin: 4px 0 16px 0; box-shadow: 0 0 28px rgba(245, 158, 11, 0.4); text-align: left; position: relative;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; border-bottom: 1px solid rgba(245, 158, 11, 0.3); padding-bottom: 5px;">
           <div style="display: flex; align-items: center; gap: 7px;">
             <span style="font-size: 18px; animation: pulse 1s infinite;">🚨</span>
@@ -1834,7 +1838,7 @@
             ← 돌아가기 (BACK)
           </button>
           <button id="hangar-reset-btn" class="btn btn-secondary" style="min-width: 130px; font-size: 11px; color: #ef4444; border-color: rgba(239, 68, 68, 0.45); padding: 11px 16px;">
-            ⚠️ 데이터 완전 초기화 (신규 리셋)
+            ⚠️ 장비 강화 초기화
           </button>
         </div>
 
@@ -5923,16 +5927,8 @@
       }
 
       resetSaveData() {
-        if (!confirm('⚠️ 모든 업그레이드, VIP 특권, 결제 내역, 골드 및 진행 기록을 완전 초기화하시겠습니까?\n(신규 게이머 초기 상태로 리셋됩니다)')) return;
-        try {
-          localStorage.removeItem(SAVE_STORAGE_KEY);
-          localStorage.removeItem('cosmic_best');
-        } catch (e) {}
+        if (!confirm('⚠️ 격납고의 장비 강화 수치(1~5단계)와 보유 골드를 초기화하시겠습니까?\n(구매하신 VIP 및 결제 특권은 안전하게 보존됩니다)')) return;
         this.gold = 0;
-        this.isVipUser = false;
-        this.emergencyPackPurchased = false;
-        this.dailyAdSupplies = 0;
-        this.lastAdSupplyDate = '';
         this.upgrades = { firepower: 0, speed: 0, shield: 0, bombs: 0, hyper: 0 };
         this.stats = {
           totalCoins: 0,
@@ -5949,8 +5945,10 @@
         this.level = 1;
         this.selectedStartSet = 1;
         this.saveGameData();
-        // 페이지 새로고침을 통해 모든 DOM, 상태, 리소스를 완벽한 신규 게이머 상태로 재구동
-        location.reload();
+        this.renderHangarUI();
+        this.renderSetSelectors();
+        this.updateGoldHUD();
+        if (this.hudHighScore) this.hudHighScore.textContent = '00000';
       }
 
       checkAchievements(notify = true) {
@@ -6890,10 +6888,12 @@
         // VIP 유저는 최고 패키지 구매자이므로 구원 보급령 결제 배너를 완전 차단!
         if (curSet < 2 || this.emergencyPackPurchased || this.isVipUser) {
           rescueCard.classList.add('hidden');
+          rescueCard.style.display = 'none';
           return;
         }
 
         rescueCard.classList.remove('hidden');
+        rescueCard.style.display = 'block';
 
         if (curSet <= 3) {
           // SET 2 & 3: Standard Emergency Supply (1,900원 / 15,000G)
