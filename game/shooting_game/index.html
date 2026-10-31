@@ -1834,7 +1834,7 @@
             ← 돌아가기 (BACK)
           </button>
           <button id="hangar-reset-btn" class="btn btn-secondary" style="min-width: 130px; font-size: 11px; color: #ef4444; border-color: rgba(239, 68, 68, 0.45); padding: 11px 16px;">
-            ⚠️ 강화 초기화
+            ⚠️ 데이터 완전 초기화 (신규 리셋)
           </button>
         </div>
 
@@ -5923,10 +5923,16 @@
       }
 
       resetSaveData() {
-        if (!confirm('⚠️ 격납고의 모든 업그레이드, 골드 및 훈장 데이터를 초기화하시겠습니까?')) return;
-        localStorage.removeItem(SAVE_STORAGE_KEY);
-        localStorage.removeItem('cosmic_best');
+        if (!confirm('⚠️ 모든 업그레이드, VIP 특권, 결제 내역, 골드 및 진행 기록을 완전 초기화하시겠습니까?\n(신규 게이머 초기 상태로 리셋됩니다)')) return;
+        try {
+          localStorage.removeItem(SAVE_STORAGE_KEY);
+          localStorage.removeItem('cosmic_best');
+        } catch (e) {}
         this.gold = 0;
+        this.isVipUser = false;
+        this.emergencyPackPurchased = false;
+        this.dailyAdSupplies = 0;
+        this.lastAdSupplyDate = '';
         this.upgrades = { firepower: 0, speed: 0, shield: 0, bombs: 0, hyper: 0 };
         this.stats = {
           totalCoins: 0,
@@ -5943,10 +5949,8 @@
         this.level = 1;
         this.selectedStartSet = 1;
         this.saveGameData();
-        this.renderHangarUI();
-        this.renderSetSelectors();
-        this.updateGoldHUD();
-        if (this.hudHighScore) this.hudHighScore.textContent = '00000';
+        // 페이지 새로고침을 통해 모든 DOM, 상태, 리소스를 완벽한 신규 게이머 상태로 재구동
+        location.reload();
       }
 
       checkAchievements(notify = true) {
@@ -6883,7 +6887,8 @@
         const rescueCard = document.getElementById('gameover-emergency-rescue');
         if (!rescueCard) return;
 
-        if (curSet < 2 || this.emergencyPackPurchased) {
+        // VIP 유저는 최고 패키지 구매자이므로 구원 보급령 결제 배너를 완전 차단!
+        if (curSet < 2 || this.emergencyPackPurchased || this.isVipUser) {
           rescueCard.classList.add('hidden');
           return;
         }
@@ -9401,16 +9406,17 @@
           ctx.save();
           const alpha = Math.min(1, this.levelUpBannerTimer / 25);
           ctx.globalAlpha = alpha;
-          ctx.font = 'bold 30px "Segoe UI", Arial, sans-serif';
+          ctx.font = 'bold 32px "Segoe UI", Arial, sans-serif';
           ctx.fillStyle = (this.levelUpBannerText && this.levelUpBannerText.includes('WARNING')) ? '#ef4444' : '#fbbf24';
           ctx.shadowColor = ctx.fillStyle;
           ctx.shadowBlur = 25;
           ctx.textAlign = 'center';
-          ctx.fillText(this.levelUpBannerText || `⚡ LEVEL ${this.level} REACHED! ⚡`, WIDTH / 2, HEIGHT / 2 - 45);
-          ctx.font = 'bold 15px "Segoe UI", Arial, sans-serif';
+          ctx.fillText(this.levelUpBannerText || `⚡ LEVEL ${this.level} REACHED! ⚡`, WIDTH / 2, HEIGHT / 2 - 42);
+          ctx.font = 'bold 20px "Segoe UI", Arial, sans-serif';
           ctx.fillStyle = '#ffffff';
-          ctx.shadowBlur = 10;
-          ctx.fillText(this.levelUpBannerSub || `적 UFO 함대 증원 & 레이저 화력 증가!`, WIDTH / 2, HEIGHT / 2 - 12);
+          ctx.shadowColor = '#00f0ff';
+          ctx.shadowBlur = 14;
+          ctx.fillText(this.levelUpBannerSub || `적 UFO 함대 증원 & 레이저 화력 증가!`, WIDTH / 2, HEIGHT / 2 - 6);
           ctx.restore();
         }
 
