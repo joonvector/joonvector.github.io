@@ -1815,12 +1815,12 @@
         </div>
 
         <!-- Achievements Cards Grid -->
-        <div id="hangar-achievements-container" class="hidden" style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; width: 100%; margin-bottom: 14px;">
+        <div id="hangar-achievements-container" style="display: none; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 10px; width: 100%; margin-bottom: 14px;">
           <!-- Dynamically populated via JS -->
         </div>
 
         <!-- Shop Container Grid -->
-        <div id="hangar-shop-container" class="hidden" style="display: none; width: 100%; flex-direction: column; gap: 14px; margin-bottom: 14px;">
+        <div id="hangar-shop-container" style="display: none; width: 100%; flex-direction: column; gap: 14px; margin-bottom: 14px;">
           <!-- Dynamically populated via JS -->
         </div>
 
@@ -6510,8 +6510,12 @@
 
         if (this.hangarActiveTab === 'achievements') {
           if (this.hangarCardsContainer) this.hangarCardsContainer.style.display = 'none';
-          if (this.hangarShopContainer) this.hangarShopContainer.style.display = 'none';
+          if (this.hangarShopContainer) {
+            this.hangarShopContainer.style.display = 'none';
+            this.hangarShopContainer.classList.add('hidden');
+          }
           if (this.hangarAchievementsContainer) {
+            this.hangarAchievementsContainer.classList.remove('hidden');
             this.hangarAchievementsContainer.style.display = 'grid';
             this.renderAchievementsUI();
           }
@@ -6520,8 +6524,12 @@
 
         if (this.hangarActiveTab === 'shop') {
           if (this.hangarCardsContainer) this.hangarCardsContainer.style.display = 'none';
-          if (this.hangarAchievementsContainer) this.hangarAchievementsContainer.style.display = 'none';
+          if (this.hangarAchievementsContainer) {
+            this.hangarAchievementsContainer.style.display = 'none';
+            this.hangarAchievementsContainer.classList.add('hidden');
+          }
           if (this.hangarShopContainer) {
+            this.hangarShopContainer.classList.remove('hidden');
             this.hangarShopContainer.style.display = 'flex';
             this.renderShopUI();
           }
@@ -6529,8 +6537,14 @@
         }
 
         // UPGRADES TAB
-        if (this.hangarAchievementsContainer) this.hangarAchievementsContainer.style.display = 'none';
-        if (this.hangarShopContainer) this.hangarShopContainer.style.display = 'none';
+        if (this.hangarAchievementsContainer) {
+          this.hangarAchievementsContainer.style.display = 'none';
+          this.hangarAchievementsContainer.classList.add('hidden');
+        }
+        if (this.hangarShopContainer) {
+          this.hangarShopContainer.style.display = 'none';
+          this.hangarShopContainer.classList.add('hidden');
+        }
         if (!this.hangarCardsContainer) return;
         this.hangarCardsContainer.style.display = 'grid';
         this.hangarCardsContainer.innerHTML = '';
