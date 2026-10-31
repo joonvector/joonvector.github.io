@@ -1,5 +1,5 @@
 // Cosmic Striker Service Worker (Network-First Live Update + Offline Fallback)
-const CACHE_NAME = 'cosmic-striker-v20';
+const CACHE_NAME = 'cosmic-striker-v21';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
