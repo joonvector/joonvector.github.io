@@ -1856,11 +1856,24 @@
         this.muted = false;
         this.bgmRunning = false;
         this.bgmWasRunning = false;
+        this.bgmResuming = false;
         this.bgmTimer = null;
         this.bgmStep = 0;
         this.currentTrack = 'set1';
         this.bgmMasterGain = null;
         this.bgmTracks = null;
+        // Official 5-Set MP3 BGM Lineup
+        this.mp3Files = {
+          set1: 'assets/bmg_final/Neon%20Starfighter.mp3',
+          set2: 'assets/bmg_final/Crimson%20Space%20Battle.mp3',
+          set3: 'assets/bmg_final/Emerald%20Asteroid%20Dodge.mp3',
+          set4: 'assets/bmg_final/Golden%20Space%20Fortress.mp3',
+          set5: 'assets/bmg_final/Final%20Boss%20Rush.mp3'
+        };
+        this.mp3Audios = {};
+        this.activeAudio = null;
+        this.bgmTargetVolume = 0.55;
+        this.fadeInterval = null;
       }
 
       init() {
@@ -2490,28 +2503,162 @@
         };
       }
 
+      initMP3Audio(trackKey) {
+        if (!this.mp3Files || !this.mp3Files[trackKey]) return null;
+        if (!this.mp3Audios[trackKey]) {
+          try {
+            const audio = new Audio(this.mp3Files[trackKey]);
+            audio.loop = true;
+            audio.preload = 'auto';
+            audio.volume = this.bgmTargetVolume;
+            this.mp3Audios[trackKey] = audio;
+          } catch (e) {
+            return null;
+          }
+        }
+        return this.mp3Audios[trackKey];
+      }
+
+      clearFade() {
+        if (this.fadeInterval) {
+          clearInterval(this.fadeInterval);
+          this.fadeInterval = null;
+        }
+      }
+
+      fadeOutBGM(durationMs = 500) {
+        this.clearFade();
+        if (this.bgmTimer) {
+          clearTimeout(this.bgmTimer);
+          this.bgmTimer = null;
+        }
+        const audio = this.activeAudio;
+        if (!audio || audio.paused) {
+          this.bgmRunning = false;
+          return;
+        }
+        const startVol = audio.volume || this.bgmTargetVolume;
+        const steps = 12;
+        const stepTime = Math.max(20, Math.floor(durationMs / steps));
+        let curStep = 0;
+        this.fadeInterval = setInterval(() => {
+          curStep++;
+          const nextVol = Math.max(0, startVol * (1 - curStep / steps));
+          try { audio.volume = nextVol; } catch (e) {}
+          if (curStep >= steps) {
+            this.clearFade();
+            try {
+              audio.pause();
+              audio.currentTime = 0;
+            } catch (e) {}
+            if (this.activeAudio === audio) {
+              this.activeAudio = null;
+              this.bgmRunning = false;
+            }
+          }
+        }, stepTime);
+      }
+
       setBGMTrack(trackName) {
         if (!trackName) return;
-        if (this.currentTrack === trackName && this.bgmRunning) return;
+        // 정식 BGM 라인업: 보스전에서도 현재 세트 BGM을 그대로 유지하여 몰입감 극대화
+        if (trackName === 'boss') {
+          if (this.currentTrack && this.currentTrack.startsWith('set')) return;
+          trackName = 'set1';
+        }
+        if (this.currentTrack === trackName && this.bgmRunning && (!this.activeAudio || !this.activeAudio.paused)) return;
         this.currentTrack = trackName;
-        if (this.bgmRunning && this.ctx && !this.muted) {
+        if (!this.muted) {
           if (this.bgmTimer) {
             clearTimeout(this.bgmTimer);
             this.bgmTimer = null;
           }
           this.bgmStep = 0;
           this.bgmRunning = false;
-          this.startBGM(trackName);
+          this.startBGM(trackName, true);
         }
       }
 
-      startBGM(targetTrack = null) {
+      startBGM(targetTrack = null, withFadeIn = true) {
         if (this.muted) return;
         this.init();
-        if (!this.ctx) return;
+        if (targetTrack === 'boss') {
+          targetTrack = (this.currentTrack && this.currentTrack.startsWith('set')) ? this.currentTrack : 'set1';
+        }
         if (targetTrack) this.currentTrack = targetTrack;
         if (!this.currentTrack) this.currentTrack = 'set1';
 
+        this.clearFade();
+
+        // 1. Official 5-Set MP3 Playback (SET 1 ~ SET 5)
+        if (this.mp3Files && this.mp3Files[this.currentTrack]) {
+          if (this.bgmTimer) {
+            clearTimeout(this.bgmTimer);
+            this.bgmTimer = null;
+          }
+          Object.keys(this.mp3Audios).forEach(k => {
+            if (k !== this.currentTrack && this.mp3Audios[k]) {
+              try {
+                this.mp3Audios[k].pause();
+                this.mp3Audios[k].currentTime = 0;
+              } catch (e) {}
+            }
+          });
+
+          const audio = this.initMP3Audio(this.currentTrack);
+          if (audio) {
+            this.activeAudio = audio;
+            this.bgmRunning = true;
+            if (audio.paused && audio.currentTime > 0 && !this.bgmResuming) {
+              try { audio.currentTime = 0; } catch (e) {}
+            }
+            const targetVol = this.bgmTargetVolume;
+            try {
+              audio.volume = withFadeIn ? 0.05 : targetVol;
+            } catch (e) {}
+
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+              playPromise.then(() => {
+                if (withFadeIn && !this.muted && this.bgmRunning && this.activeAudio === audio) {
+                  let step = 0;
+                  const totalSteps = 12;
+                  this.clearFade();
+                  this.fadeInterval = setInterval(() => {
+                    step++;
+                    if (this.muted || !this.bgmRunning || this.activeAudio !== audio) {
+                      this.clearFade();
+                      return;
+                    }
+                    const v = Math.min(targetVol, 0.05 + (targetVol - 0.05) * (step / totalSteps));
+                    try { audio.volume = v; } catch (e) {}
+                    if (step >= totalSteps) this.clearFade();
+                  }, 45);
+                }
+              }).catch(() => {
+                this.activeAudio = null;
+                this.bgmRunning = false;
+                this.startSynthBGM(this.currentTrack);
+              });
+            }
+            return;
+          }
+        }
+
+        // 2. Title / Briefing or Synth Fallback
+        if (this.activeAudio) {
+          try {
+            this.activeAudio.pause();
+            this.activeAudio.currentTime = 0;
+          } catch (e) {}
+          this.activeAudio = null;
+        }
+        this.startSynthBGM(this.currentTrack);
+      }
+
+      startSynthBGM(targetTrack = null) {
+        if (this.muted || !this.ctx) return;
+        if (targetTrack) this.currentTrack = targetTrack;
         this.initBGMTracks();
         const dest = this.bgmMasterGain || this.ctx.destination;
 
@@ -2639,23 +2786,46 @@
       }
 
       stopBGM() {
+        this.clearFade();
         this.bgmRunning = false;
         if (this.bgmTimer) {
           clearTimeout(this.bgmTimer);
           this.bgmTimer = null;
         }
+        if (this.activeAudio) {
+          try {
+            this.activeAudio.pause();
+            this.activeAudio.currentTime = 0;
+          } catch (e) {}
+          this.activeAudio = null;
+        }
+        if (this.mp3Audios) {
+          Object.values(this.mp3Audios).forEach(a => {
+            try { a.pause(); } catch (e) {}
+          });
+        }
       }
 
       pauseBGM() {
         if (!this.bgmRunning) return;
+        this.clearFade();
         this.bgmWasRunning = true;
-        this.stopBGM();
+        this.bgmRunning = false;
+        if (this.bgmTimer) {
+          clearTimeout(this.bgmTimer);
+          this.bgmTimer = null;
+        }
+        if (this.activeAudio) {
+          try { this.activeAudio.pause(); } catch (e) {}
+        }
       }
 
       resumeBGM() {
         if (this.bgmWasRunning && !this.muted) {
           this.bgmWasRunning = false;
-          this.startBGM(this.currentTrack);
+          this.bgmResuming = true;
+          this.startBGM(this.currentTrack, true);
+          this.bgmResuming = false;
         }
       }
     }
@@ -6752,63 +6922,44 @@
         `;
         this.hangarShopContainer.appendChild(dailyBanner);
 
-        // 2. Ace Pilot VIP Package (Displayed ONLY on Set 3+ or if already purchased)
-        if (unlockedSet >= 3 || isVip) {
-          const vipCard = document.createElement('div');
-          vipCard.className = 'vip-hero-card';
-          vipCard.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 26px;">👑</span>
-                <div>
-                  <div style="font-size: 17px; font-weight: 900; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.7);">에이스 파일럿 VIP 패키지 (ACE PILOT VIP)</div>
-                  <div style="font-size: 11px; color: #fde68a;">영구 특권 올인원 • 모든 강제 광고 제거 • 평생 편안한 우주 전투</div>
-                </div>
-              </div>
-              <span style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #050711; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 8px; box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);">
-                ${isVip ? '✅ VIP 활성화됨' : '3,900원 / $2.99'}
-              </span>
-            </div>
-
-            <div class="vip-perks-grid">
-              <div class="vip-perk-chip">🛡️ <strong>영구 출격 라이프 4기</strong> (기본 3대 ➔ 4대 확장)</div>
-              <div class="vip-perk-chip">🧲 <strong>전 화면 골드 자동 자석 흡수</strong> (Coin Magnet)</div>
-              <div class="vip-perk-chip">🚫 <strong>모든 전면/강제 광고 영구 제거</strong> (No-Ads)</div>
-              <div class="vip-perk-chip">⚡ <strong>비상 부활 / 골드 2배 광고 없이 즉시 프리패스</strong></div>
-              <div class="vip-perk-chip">🎁 <strong>개척 지원금 +5,000 G</strong> (구매 시 즉시 지급)</div>
-            </div>
-
-            <div style="display: flex; justify-content: flex-end; position: relative; z-index: 2; margin-top: 4px;">
-              ${isVip ? `
-                <button class="btn" disabled style="background: rgba(34, 197, 94, 0.2); border: 1.5px solid #22c55e; color: #22c55e; cursor: default; font-size: 14px; padding: 10px 24px; box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);">
-                  ✅ VIP 특권이 영구 활성화되어 있습니다
-                </button>
-              ` : `
-                <button id="btn-buy-vip" class="btn" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%); color: #050711; font-weight: 900; font-size: 15px; padding: 11px 28px; box-shadow: 0 0 25px rgba(251, 191, 36, 0.8);">
-                  👑 3,900원에 VIP 특권 영구 획득
-                </button>
-              `}
-            </div>
-          `;
-          this.hangarShopContainer.appendChild(vipCard);
-        } else {
-          // Locked teaser for Set 1~2 players
-          const lockedCard = document.createElement('div');
-          lockedCard.style.cssText = 'width: 100%; background: rgba(15, 23, 42, 0.6); border: 1.5px dashed rgba(251, 191, 36, 0.3); border-radius: 14px; padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-sizing: border-box;';
-          lockedCard.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 24px; filter: grayscale(0.6);">🔒</span>
+        // 2. Ace Pilot VIP Package (Always unlocked & displayed from SET 1)
+        const vipCard = document.createElement('div');
+        vipCard.className = 'vip-hero-card';
+        vipCard.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; flex-wrap: wrap; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 26px;">👑</span>
               <div>
-                <div style="font-size: 14px; font-weight: 800; color: #94a3b8;">사령부 기밀 보급: 에이스 파일럿 VIP 패키지</div>
-                <div style="font-size: 11.5px; color: #64748b;">SET 3 (섹터 21 돌파) 도달 시 사령부 VIP 특권 패키지가 정식 해금됩니다.</div>
+                <div style="font-size: 17px; font-weight: 900; color: #fbbf24; text-shadow: 0 0 15px rgba(251, 191, 36, 0.7);">에이스 파일럿 VIP 패키지 (ACE PILOT VIP)</div>
+                <div style="font-size: 11px; color: #fde68a;">영구 특권 올인원 • 모든 강제 광고 제거 • 평생 편안한 우주 전투</div>
               </div>
             </div>
-            <span style="font-size: 11px; font-weight: 800; color: #f59e0b; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.35); padding: 4px 10px; border-radius: 6px; white-space: nowrap;">
-              SET 3 해금 예정
+            <span style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #050711; font-weight: 900; font-size: 12px; padding: 4px 12px; border-radius: 8px; box-shadow: 0 0 15px rgba(251, 191, 36, 0.6);">
+              ${isVip ? '✅ VIP 활성화됨' : '3,900원 / $2.99'}
             </span>
-          `;
-          this.hangarShopContainer.appendChild(lockedCard);
-        }
+          </div>
+
+          <div class="vip-perks-grid">
+            <div class="vip-perk-chip">🛡️ <strong>영구 출격 라이프 4기</strong> (기본 3대 ➔ 4대 확장)</div>
+            <div class="vip-perk-chip">🧲 <strong>전 화면 골드 자동 자석 흡수</strong> (Coin Magnet)</div>
+            <div class="vip-perk-chip">🚫 <strong>모든 전면/강제 광고 영구 제거</strong> (No-Ads)</div>
+            <div class="vip-perk-chip">⚡ <strong>비상 부활 / 골드 2배 광고 없이 즉시 프리패스</strong></div>
+            <div class="vip-perk-chip">🎁 <strong>개척 지원금 +5,000 G</strong> (구매 시 즉시 지급)</div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; position: relative; z-index: 2; margin-top: 4px;">
+            ${isVip ? `
+              <button class="btn" disabled style="background: rgba(34, 197, 94, 0.2); border: 1.5px solid #22c55e; color: #22c55e; cursor: default; font-size: 14px; padding: 10px 24px; box-shadow: 0 0 15px rgba(34, 197, 94, 0.3);">
+                ✅ VIP 특권이 영구 활성화되어 있습니다
+              </button>
+            ` : `
+              <button id="btn-buy-vip" class="btn" style="background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%); color: #050711; font-weight: 900; font-size: 15px; padding: 11px 28px; box-shadow: 0 0 25px rgba(251, 191, 36, 0.8);">
+                👑 3,900원에 VIP 특권 영구 획득
+              </button>
+            `}
+          </div>
+        `;
+        this.hangarShopContainer.appendChild(vipCard);
 
         // Bind events inside Shop
         const buyVipBtn = document.getElementById('btn-buy-vip');
@@ -7273,7 +7424,7 @@
         const setNum = this.getSet();
         this.currentBoss = new BossShip(setNum);
         this.bossEncounterHitTaken = false;
-        sounds.setBGMTrack('boss');
+        sounds.setBGMTrack('set' + setNum);
         if (sounds.playWarning) {
           sounds.playWarning();
         }
@@ -8009,6 +8160,7 @@
           this.intermissionScreen.classList.remove('hidden');
         }
 
+        sounds.fadeOutBGM(600);
         sounds.playVictory();
       }
 
@@ -8034,6 +8186,7 @@
           nextLevel: curSet * 10 + 1
         };
 
+        sounds.setBGMTrack('set' + nextSet);
         sounds.playLevelUp();
         this.shake(10, 15);
         this.vibrate([50, 40, 60]);
@@ -8373,7 +8526,7 @@
             sounds.stopBGM();
           } else {
             const neededTrack = (this.state === 'PLAYING')
-              ? ((this.currentBoss && !this.currentBoss.isDying) ? 'boss' : ('set' + this.getSet()))
+              ? ('set' + this.getSet())
               : 'title';
             sounds.startBGM(neededTrack);
           }
@@ -8583,9 +8736,12 @@
         const curSet = this.getSet();
         const bossActive = !!this.currentBoss;
 
-        // Dynamic BGM Track Synchronization (Set 1~5 vs Boss Battle)
+        // Dynamic BGM Track Synchronization (Set 1~5 Official BGM)
         if (sounds.bgmRunning && !sounds.muted) {
-          const neededTrack = (this.currentBoss && !this.currentBoss.isDying) ? 'boss' : ('set' + curSet);
+          const activeSet = (isIntermission && this.stageIntermission.isDeparture && this.stageIntermission.nextSet)
+            ? this.stageIntermission.nextSet
+            : curSet;
+          const neededTrack = 'set' + activeSet;
           if (sounds.currentTrack !== neededTrack) {
             sounds.setBGMTrack(neededTrack);
           }

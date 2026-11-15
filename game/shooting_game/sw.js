@@ -1,5 +1,5 @@
 // Cosmic Striker Service Worker (Network-First Live Update + Offline Fallback)
-const CACHE_NAME = 'cosmic-striker-v21';
+const CACHE_NAME = 'cosmic-striker-v22';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -22,6 +22,11 @@ const PRECACHE_ASSETS = [
   './assets/set4_boss.jpg',
   './assets/set5_bg.jpg',
   './assets/set5_boss.jpg',
+  './assets/bmg_final/Neon%20Starfighter.mp3',
+  './assets/bmg_final/Crimson%20Space%20Battle.mp3',
+  './assets/bmg_final/Emerald%20Asteroid%20Dodge.mp3',
+  './assets/bmg_final/Golden%20Space%20Fortress.mp3',
+  './assets/bmg_final/Final%20Boss%20Rush.mp3',
   './icons/icon-192.png',
   './icons/icon-512.png',
   './icons/icon-maskable-512.png',
