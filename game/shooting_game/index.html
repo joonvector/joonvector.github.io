@@ -1871,8 +1871,14 @@
           set5: 'assets/bmg_final/Final%20Boss%20Rush.mp3'
         };
         this.mp3Audios = {};
+        this.mp3Nodes = {};
         this.activeAudio = null;
+        this.isLoungeMode = false;
+        this.bgmCombatVolume = 0.55;
+        this.bgmLoungeVolume = 0.24;
         this.bgmTargetVolume = 0.55;
+        this.combatFilterFreq = 20000;
+        this.loungeFilterFreq = 780;
         this.fadeInterval = null;
       }
 
@@ -2510,19 +2516,75 @@
             const audio = new Audio(this.mp3Files[trackKey]);
             audio.loop = true;
             audio.preload = 'auto';
-            audio.volume = this.bgmTargetVolume;
+            audio.volume = this.isLoungeMode ? this.bgmLoungeVolume : this.bgmCombatVolume;
             this.mp3Audios[trackKey] = audio;
           } catch (e) {
             return null;
           }
         }
-        return this.mp3Audios[trackKey];
+        const audio = this.mp3Audios[trackKey];
+        // Web Audio API Low-Pass Filter routing for Space Hangar Lounge effect
+        if (this.ctx && !this.mp3Nodes[trackKey] && window.location.protocol !== 'file:') {
+          try {
+            const source = this.ctx.createMediaElementSource(audio);
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.Q.setValueAtTime(0.85, this.ctx.currentTime);
+            filter.frequency.setValueAtTime(
+              this.isLoungeMode ? this.loungeFilterFreq : this.combatFilterFreq,
+              this.ctx.currentTime
+            );
+            source.connect(filter);
+            filter.connect(this.ctx.destination);
+            this.mp3Nodes[trackKey] = { source, filter };
+          } catch (e) {}
+        }
+        return audio;
       }
 
       clearFade() {
         if (this.fadeInterval) {
           clearInterval(this.fadeInterval);
           this.fadeInterval = null;
+        }
+      }
+
+      setLoungeMode(isLounge, durationMs = 550) {
+        this.isLoungeMode = !!isLounge;
+        this.bgmTargetVolume = this.isLoungeMode ? this.bgmLoungeVolume : this.bgmCombatVolume;
+
+        const currentKey = this.currentTrack;
+        if (this.ctx && this.mp3Nodes && this.mp3Nodes[currentKey]) {
+          try {
+            const filter = this.mp3Nodes[currentKey].filter;
+            const now = this.ctx.currentTime;
+            const targetFreq = this.isLoungeMode ? this.loungeFilterFreq : this.combatFilterFreq;
+            filter.frequency.cancelScheduledValues(now);
+            filter.frequency.setValueAtTime(Math.max(200, filter.frequency.value || targetFreq), now);
+            filter.frequency.exponentialRampToValueAtTime(targetFreq, now + (durationMs / 1000));
+          } catch (e) {}
+        }
+
+        const audio = this.activeAudio;
+        if (audio && !audio.paused && !this.muted) {
+          this.clearFade();
+          const startVol = audio.volume;
+          const targetVol = this.bgmTargetVolume;
+          if (Math.abs(startVol - targetVol) > 0.01) {
+            const steps = 10;
+            const stepTime = Math.max(20, Math.floor(durationMs / steps));
+            let curStep = 0;
+            this.fadeInterval = setInterval(() => {
+              curStep++;
+              if (this.muted || !this.bgmRunning || this.activeAudio !== audio) {
+                this.clearFade();
+                return;
+              }
+              const v = startVol + (targetVol - startVol) * (curStep / steps);
+              try { audio.volume = Math.max(0, Math.min(1, v)); } catch (e) {}
+              if (curStep >= steps) this.clearFade();
+            }, stepTime);
+          }
         }
       }
 
@@ -2559,14 +2621,33 @@
         }, stepTime);
       }
 
-      setBGMTrack(trackName) {
+      setBGMTrack(trackName, isLounge = null) {
         if (!trackName) return;
         // 정식 BGM 라인업: 보스전에서도 현재 세트 BGM을 그대로 유지하여 몰입감 극대화
         if (trackName === 'boss') {
-          if (this.currentTrack && this.currentTrack.startsWith('set')) return;
+          if (this.currentTrack && this.currentTrack.startsWith('set')) {
+            if (isLounge !== null) this.setLoungeMode(isLounge);
+            return;
+          }
           trackName = 'set1';
         }
-        if (this.currentTrack === trackName && this.bgmRunning && (!this.activeAudio || !this.activeAudio.paused)) return;
+        // 타이틀/격납고에서도 구형 8비트 신스 대신 현재 선택된 세트의 정식 MP3를 라운지 모드로 재생
+        if (trackName === 'title') {
+          trackName = (this.currentTrack && this.currentTrack.startsWith('set')) ? this.currentTrack : 'set1';
+          if (isLounge === null) isLounge = true;
+        }
+
+        if (isLounge !== null) {
+          this.isLoungeMode = !!isLounge;
+          this.bgmTargetVolume = this.isLoungeMode ? this.bgmLoungeVolume : this.bgmCombatVolume;
+        }
+
+        // 이미 같은 트랙이 재생 중이면 끊지 않고 라운지 필터/볼륨만 부드럽게 전환!
+        if (this.currentTrack === trackName && this.bgmRunning && this.activeAudio && !this.activeAudio.paused) {
+          this.setLoungeMode(this.isLoungeMode, 550);
+          return;
+        }
+
         this.currentTrack = trackName;
         if (!this.muted) {
           if (this.bgmTimer) {
@@ -2575,18 +2656,32 @@
           }
           this.bgmStep = 0;
           this.bgmRunning = false;
-          this.startBGM(trackName, true);
+          this.startBGM(trackName, true, this.isLoungeMode);
         }
       }
 
-      startBGM(targetTrack = null, withFadeIn = true) {
+      startBGM(targetTrack = null, withFadeIn = true, isLounge = null) {
         if (this.muted) return;
         this.init();
         if (targetTrack === 'boss') {
           targetTrack = (this.currentTrack && this.currentTrack.startsWith('set')) ? this.currentTrack : 'set1';
         }
-        if (targetTrack) this.currentTrack = targetTrack;
-        if (!this.currentTrack) this.currentTrack = 'set1';
+        if (targetTrack === 'title') {
+          targetTrack = (this.currentTrack && this.currentTrack.startsWith('set')) ? this.currentTrack : 'set1';
+          if (isLounge === null) isLounge = true;
+        }
+        if (isLounge !== null) {
+          this.isLoungeMode = !!isLounge;
+          this.bgmTargetVolume = this.isLoungeMode ? this.bgmLoungeVolume : this.bgmCombatVolume;
+        }
+        if (targetTrack) {
+          if (this.currentTrack === targetTrack && this.bgmRunning && this.activeAudio && !this.activeAudio.paused) {
+            this.setLoungeMode(this.isLoungeMode, 550);
+            return;
+          }
+          this.currentTrack = targetTrack;
+        }
+        if (!this.currentTrack || this.currentTrack === 'title') this.currentTrack = 'set1';
 
         this.clearFade();
 
@@ -2612,9 +2707,20 @@
             if (audio.paused && audio.currentTime > 0 && !this.bgmResuming) {
               try { audio.currentTime = 0; } catch (e) {}
             }
+            // Apply Low-Pass Filter state immediately or sweep
+            if (this.ctx && this.mp3Nodes && this.mp3Nodes[this.currentTrack]) {
+              try {
+                const filter = this.mp3Nodes[this.currentTrack].filter;
+                const now = this.ctx.currentTime;
+                const targetFreq = this.isLoungeMode ? this.loungeFilterFreq : this.combatFilterFreq;
+                filter.frequency.cancelScheduledValues(now);
+                filter.frequency.setValueAtTime(targetFreq, now);
+              } catch (e) {}
+            }
+
             const targetVol = this.bgmTargetVolume;
             try {
-              audio.volume = withFadeIn ? 0.05 : targetVol;
+              audio.volume = withFadeIn ? 0.04 : targetVol;
             } catch (e) {}
 
             const playPromise = audio.play();
@@ -2630,7 +2736,8 @@
                       this.clearFade();
                       return;
                     }
-                    const v = Math.min(targetVol, 0.05 + (targetVol - 0.05) * (step / totalSteps));
+                    const curTarget = this.bgmTargetVolume;
+                    const v = Math.min(curTarget, 0.04 + (curTarget - 0.04) * (step / totalSteps));
                     try { audio.volume = v; } catch (e) {}
                     if (step >= totalSteps) this.clearFade();
                   }, 45);
@@ -2645,7 +2752,7 @@
           }
         }
 
-        // 2. Title / Briefing or Synth Fallback
+        // 2. Synth Fallback
         if (this.activeAudio) {
           try {
             this.activeAudio.pause();
@@ -5947,6 +6054,9 @@
                 this.selectedStartSet = s;
                 sounds.init();
                 sounds.playCoin();
+                if (!sounds.muted) {
+                  sounds.setBGMTrack('set' + s, true);
+                }
                 this.renderSetSelectors();
               };
               btn.addEventListener('click', selectHandler);
@@ -6588,11 +6698,11 @@
         if (!this.titleIntroCompleted) return;
         sounds.init();
         sounds.playPowerUp();
-        if (!sounds.bgmRunning && !sounds.muted) {
-          sounds.startBGM('title');
-        }
         this.requestMobileFullscreen();
         this.selectedStartSet = this.getUnlockedSet();
+        if (!sounds.muted) {
+          sounds.setBGMTrack('set' + (this.selectedStartSet || 1), true);
+        }
         this.renderSetSelectors();
         if (this.startScreen) this.startScreen.classList.add('hidden');
         if (this.guideScreen) this.guideScreen.classList.remove('hidden');
@@ -6609,8 +6719,11 @@
         sounds.init();
         sounds.playLevelUp();
         this.hangarPreviousState = fromState || this.state;
-        if (!sounds.bgmRunning && !sounds.muted) {
-          sounds.startBGM('title');
+        if (!sounds.muted) {
+          const previewSet = (this.hangarPreviousState === 'INTERMISSION' && this.stageIntermissionClearedSet)
+            ? Math.min(5, this.stageIntermissionClearedSet + 1)
+            : (this.hangarPreviousState === 'PAUSED' ? this.getSet() : (this.selectedStartSet || this.getUnlockedSet() || 1));
+          sounds.setBGMTrack('set' + previewSet, true);
         }
         this.requestMobileFullscreen();
 
@@ -6645,9 +6758,10 @@
         const prev = this.hangarPreviousState;
         if (prev === 'START' && this.startScreen) {
           this.startScreen.classList.remove('hidden');
-          if (!sounds.muted && sounds.bgmRunning) sounds.setBGMTrack('title');
+          if (!sounds.muted) sounds.setBGMTrack('set' + (this.selectedStartSet || this.getUnlockedSet() || 1), true);
         } else if (prev === 'PAUSED' && this.pauseScreen) {
           this.pauseScreen.classList.remove('hidden');
+          if (!sounds.muted) sounds.setLoungeMode(true, 350);
         } else if (prev === 'GAMEOVER' && this.gameoverScreen) {
           this.gameoverScreen.classList.remove('hidden');
         } else if (prev === 'VICTORY' && this.victoryScreen) {
@@ -7170,7 +7284,7 @@
 
       showReviveCountdown() {
         this.state = 'REVIVE_COUNTDOWN';
-        sounds.stopBGM();
+        sounds.setLoungeMode(true, 250);
         sounds.playWarning();
 
         const modal = document.getElementById('revive-modal');
@@ -7243,7 +7357,7 @@
           this.shake(14, 18);
           this.vibrate([40, 30, 60]);
           sounds.playVictory();
-          sounds.setBGMTrack('set' + this.getSet());
+          sounds.setBGMTrack('set' + this.getSet(), false);
 
           this.floatingTexts.push(new FloatingText(this.player.x, this.player.y - 35, `⭐ 비상 전투 복구 완료 (${this.revivesUsedThisRun}/2) ⭐`, '#00f0ff', 18));
           this.state = 'PLAYING';
@@ -7318,7 +7432,7 @@
         this.state = 'PAUSED';
         this.touchActive = false;
         this.keys = {};
-        sounds.pauseBGM();
+        sounds.setLoungeMode(true, 350);
 
         if (this.pauseBtn) {
           this.pauseBtn.textContent = '▶️ 재개';
@@ -7365,7 +7479,7 @@
         this.accumulator = 0;
         this.touchActive = false;
         this.keys = {};
-        sounds.resumeBGM();
+        sounds.setBGMTrack('set' + this.getSet(), false);
 
         if (this.pauseBtn) {
           this.pauseBtn.textContent = '⏸️ 정지';
@@ -7603,6 +7717,7 @@
               nextLevel: this.level + 1
             };
             this.stageIntermissionClearedSet = curSet;
+            sounds.setLoungeMode(true, 1200);
             sounds.playLevelUp();
             this.shake(8, 12);
             this.vibrate([40, 30, 50]);
@@ -7797,7 +7912,7 @@
 
         try {
           sounds.init();
-          sounds.startBGM('set' + chosenSet);
+          sounds.setBGMTrack('set' + chosenSet, false);
         } catch (e) {
           console.warn("Audio init deferred:", e);
         }
@@ -8160,7 +8275,8 @@
           this.intermissionScreen.classList.remove('hidden');
         }
 
-        sounds.fadeOutBGM(600);
+        const previewNextSet = Math.min(5, clearedSet + 1);
+        sounds.setBGMTrack('set' + previewNextSet, true);
         sounds.playVictory();
       }
 
@@ -8186,7 +8302,7 @@
           nextLevel: curSet * 10 + 1
         };
 
-        sounds.setBGMTrack('set' + nextSet);
+        sounds.setBGMTrack('set' + nextSet, false);
         sounds.playLevelUp();
         this.shake(10, 15);
         this.vibrate([50, 40, 60]);
@@ -8525,10 +8641,11 @@
           if (sounds.muted) {
             sounds.stopBGM();
           } else {
-            const neededTrack = (this.state === 'PLAYING')
-              ? ('set' + this.getSet())
-              : 'title';
-            sounds.startBGM(neededTrack);
+            const isCombat = (this.state === 'PLAYING');
+            const targetSet = (this.state === 'INTERMISSION' && this.stageIntermissionClearedSet)
+              ? Math.min(5, this.stageIntermissionClearedSet + 1)
+              : ((this.state === 'PLAYING' || this.state === 'PAUSED') ? this.getSet() : (this.selectedStartSet || this.getUnlockedSet() || 1));
+            sounds.startBGM('set' + targetSet, true, !isCombat);
           }
         });
 
@@ -8537,7 +8654,8 @@
           sounds.init();
           this.requestMobileFullscreen();
           if (this.state === 'START' && !sounds.bgmRunning && !sounds.muted) {
-            sounds.startBGM('title');
+            const initSet = this.selectedStartSet || this.getUnlockedSet() || 1;
+            sounds.startBGM('set' + initSet, true, true);
           }
         };
         window.addEventListener('pointerdown', unlockAudioOnUserGesture, { once: true });
